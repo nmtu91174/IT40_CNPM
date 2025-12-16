@@ -1,4 +1,5 @@
  # Visual Studio files
+mp3/
 .vs/
 *.user
 *.userosscache
@@ -68,3 +69,6 @@ nupkg/
 *.ndf
 *.bak
 *.db
+
+#doc files
+*.docx
