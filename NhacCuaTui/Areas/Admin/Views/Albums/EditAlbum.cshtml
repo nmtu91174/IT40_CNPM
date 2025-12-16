@@ -1,0 +1,298 @@
+﻿@using System;
+@using System.Globalization;
+
+@using System.Collections
+@using System.Collections.Generic
+
+@{
+    ViewBag.Title = "Sửa album";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var album = ViewBag.Album as ArrayList;
+    var artists = ViewBag.Artists as ArrayList;
+    var allSongs = ViewBag.AllSongs as ArrayList;
+    var songsInAlbum = ViewBag.SongsInAlbum as ArrayList;
+
+    string albumId = album[0].ToString();
+    string albumName = album[1].ToString();
+    string artistId = album[2].ToString();
+    string coverImage = album[5] != null ? album[5].ToString() : "default-cover.jpg";
+
+    DateTime releaseDate;
+    DateTime.TryParse(album[4].ToString(), out releaseDate);
+
+    var selectedSongIds = new HashSet<string>();
+    if (songsInAlbum != null)
+    {
+        foreach (ArrayList row in songsInAlbum)
+        {
+            // row[0] = song_id
+            selectedSongIds.Add(row[0].ToString());
+        }
+    }
+}
+
+<h2>Sửa Album</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@using (Html.BeginForm("SuaAlbum", "Albums", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.Hidden("id", albumId)
+
+    <div class="form-group">
+        <label>Tên album</label>
+        <input type="text" name="albumname" class="form-control" value="@albumName" required />
+    </div>
+
+    <div class="form-group">
+        <label>Nghệ sĩ</label>
+        <select name="artist_id" class="form-control" required>
+            @if (artists != null)
+            {
+                foreach (ArrayList row in artists)
+                {
+                    string _artistId = row[0].ToString();
+                    string _artistName = row[1].ToString();
+                    string selected = _artistId == artistId ? "selected=\"selected\"" : "";
+
+                    @:<option value="@_artistId" @Html.Raw(selected)>@_artistName</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Ngày phát hành</label>
+        <input type="date" name="release_date"
+               class="form-control"
+               value="@releaseDate.ToString("yyyy-MM-dd")"
+               required />
+    </div>
+
+    <div class="form-group">
+        <label>Ảnh bìa hiện tại</label><br />
+        <img src="~/Source/Albums-Image/@coverImage" alt="Cover" style="max-width:200px; height:auto;" />
+    </div>
+
+    <div class="form-group">
+        <label>Đổi ảnh bìa (nếu cần)</label>
+        <input type="file" name="cover_image" class="form-control" />
+        <small>Nếu không chọn file mới, ảnh cũ sẽ được giữ nguyên.</small>
+    </div>
+
+    <div class="form-group">
+        <label>Bài hát thuộc album</label>
+        <select name="existing_songs" multiple="multiple" size="10" class="form-control">
+            @if (allSongs != null)
+            {
+                foreach (ArrayList row in allSongs)
+                {
+                    string songId = row[0].ToString();
+                    string songName = row[1].ToString();
+                    bool isSelected = selectedSongIds.Contains(songId);
+                    string selected = isSelected ? "selected=\"selected\"" : "";
+
+                    @:<option value="@songId" @Html.Raw(selected)>@songName</option>
+                }
+            }
+        </select>
+        <small>Giữ Ctrl (hoặc Cmd trên Mac) để chọn nhiều bài.</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a href="@Url.Action("Index", "Albums", new { area = "Admin" })" class="btn btn-default">Quay lại</a>
+}
+
+
+<script>
+    let select2Initialized = false;
+
+    // Khởi tạo Select2 khi trang load
+    $(document).ready(function () {
+        initializeSelect2();
+    });
+
+    function initializeSelect2() {
+        if (!select2Initialized && $('#existing_songs').length) {
+            $('#existing_songs').select2({
+                placeholder: "Tìm kiếm bài hát...",
+                allowClear: true,
+                dropdownParent: $("#existingSongsModal"),
+                width: '100%'
+            });
+            select2Initialized = true;
+        }
+    }
+
+    // Hiển thị modal chọn bài hát hiện có
+    function showExistingSongs() {
+        const modal = new bootstrap.Modal(document.getElementById('existingSongsModal'));
+        modal.show();
+        // Khởi tạo Select2 sau khi modal mở
+        setTimeout(initializeSelect2, 100);
+    }
+
+    // Hiển thị modal thêm bài hát mới
+    function showNewSongForm() {
+        const modal = new bootstrap.Modal(document.getElementById('newSongModal'));
+        modal.show();
+    }
+
+    // Thêm bài hát hiện có vào danh sách (tags)
+    function addExistingSongs() {
+        const select = document.getElementById('existing_songs');
+        const container = document.getElementById('selected_songs_container');
+        Array.from(select.selectedOptions).forEach(option => {
+            // Check if already exists
+            const exists = Array.from(container.querySelectorAll('input[name="existing_songs[]"]')).some(input => input.value === option.value);
+            if (!exists) {
+                const tag = createTag(option.value, option.textContent, true);
+                container.appendChild(tag);
+            }
+        });
+        bootstrap.Modal.getInstance(document.getElementById('existingSongsModal')).hide();
+    }
+
+    // Thêm bài hát mới vào danh sách (tags)
+    function addNewSong() {
+        const name = document.getElementById('new_song_name').value.trim();
+        const genre = document.getElementById('new_song_genre').value;
+        const lyrics = document.getElementById('new_song_lyrics').value;
+        const releaseDate = document.getElementById('new_song_release_date').value;
+        const fileInput = document.getElementById('new_song_file');
+        const thumbnailInput = document.getElementById('new_song_thumbnail');
+
+        if (!name || !genre || !releaseDate || !fileInput.files.length) {
+            alert("Vui lòng nhập đầy đủ thông tin bài hát (tên, thể loại, ngày phát hành, tệp bài hát)!");
+            return;
+        }
+
+        const container = document.getElementById('selected_songs_container');
+        const tag = createNewSongTag(name, genre, lyrics, releaseDate, fileInput.files[0], thumbnailInput.files[0] || null);
+        container.appendChild(tag);
+
+        // Reset form
+        document.getElementById('new_song_name').value = '';
+        document.getElementById('new_song_genre').value = '';
+        document.getElementById('new_song_lyrics').value = '';
+        document.getElementById('new_song_release_date').value = '';
+        document.getElementById('new_song_file').value = '';
+        document.getElementById('new_song_thumbnail').value = '';
+
+        bootstrap.Modal.getInstance(document.getElementById('newSongModal')).hide();
+    }
+
+    // Tạo một tag bài hát hiện có
+    function createTag(value, text, isExisting) {
+        const tag = document.createElement('div');
+        tag.className = 'badge bg-primary text-white me-2 mb-2 p-2';
+        tag.textContent = text;
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'existing_songs[]';
+        input.value = value;
+        tag.appendChild(input);
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close btn-close-white ms-2';
+        closeBtn.style.marginLeft = '5px';
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            tag.remove();
+        };
+        tag.appendChild(closeBtn);
+        return tag;
+    }
+
+    // Tạo một tag bài hát mới
+    function createNewSongTag(name, genre, lyrics, releaseDate, audioFile, thumbnailFile) {
+        const tag = document.createElement('div');
+        tag.className = 'badge bg-success text-white me-2 mb-2 p-2';
+        tag.textContent = name + ' (Mới)';
+
+        // Lưu dữ liệu bài hát mới
+        const hiddenInputs = document.createElement('div');
+        hiddenInputs.style.display = 'none';
+
+        const fileIndex = document.querySelectorAll('input[name^="new_songs_"]').length / 4;
+
+        // Tạo form data cho file audio
+        const audioInput = document.createElement('input');
+        audioInput.type = 'hidden';
+        audioInput.name = `new_songs[${fileIndex}].SongName`;
+        audioInput.value = name;
+        hiddenInputs.appendChild(audioInput);
+
+        const genreInput = document.createElement('input');
+        genreInput.type = 'hidden';
+        genreInput.name = `new_songs[${fileIndex}].GenreId`;
+        genreInput.value = genre;
+        hiddenInputs.appendChild(genreInput);
+
+        const lyricsInput = document.createElement('input');
+        lyricsInput.type = 'hidden';
+        lyricsInput.name = `new_songs[${fileIndex}].Lyrics`;
+        lyricsInput.value = lyrics;
+        hiddenInputs.appendChild(lyricsInput);
+
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = `new_songs[${fileIndex}].ReleaseDate`;
+        dateInput.value = releaseDate;
+        hiddenInputs.appendChild(dateInput);
+
+        const fileNameInput = document.createElement('input');
+        fileNameInput.type = 'hidden';
+        fileNameInput.name = `new_songs[${fileIndex}].FileName`;
+        fileNameInput.value = audioFile.name;
+        hiddenInputs.appendChild(fileNameInput);
+
+        const thumbnailInput = document.createElement('input');
+        thumbnailInput.type = 'hidden';
+        thumbnailInput.name = `new_songs[${fileIndex}].ThumbnailImage`;
+        thumbnailInput.value = thumbnailFile ? thumbnailFile.name : '';
+        hiddenInputs.appendChild(thumbnailInput);
+
+        // Lưu file vào FormData (sẽ xử lý trong JavaScript)
+        tag.dataset.audioFile = audioFile.name;
+        tag.dataset.audioSize = audioFile.size;
+        tag.dataset.thumbnailFile = thumbnailFile ? thumbnailFile.name : '';
+        tag.appendChild(hiddenInputs);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close btn-close-white ms-2';
+        closeBtn.style.marginLeft = '5px';
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            tag.remove();
+        };
+        tag.appendChild(closeBtn);
+        return tag;
+    }
+
+    // Submit form
+    document.getElementById('editAlbumForm').addEventListener('submit', function (e) {
+        // Validate form trước khi submit
+        const albumname = document.querySelector('input[name="albumname"]').value.trim();
+        const artist_id = document.querySelector('select[name="artist_id"]').value;
+        const release_date = document.querySelector('input[name="release_date"]').value;
+
+        if (!albumname || !artist_id || !release_date) {
+            e.preventDefault();
+            alert('Vui lòng nhập đầy đủ thông tin album!');
+            return false;
+        }
+
+        // Form sẽ submit bình thường
+        return true;
+    });
+</script>

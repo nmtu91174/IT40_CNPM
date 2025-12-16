@@ -1,0 +1,98 @@
+﻿<div class="card">
+    <div class="card-body">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Thể loại</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="d-flex">
+                        <div class="me-3 d-none d-md-block">
+                            <div class="input-icon">
+                                <input type="text" id="genreSearch" class="form-control" placeholder="Tìm kiếm…" />
+                            </div>
+                        </div>
+                        <a href="~/Admin/Genres/Create" class="btn btn-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 5l0 14"></path>
+                                <path d="M5 12l14 0"></path>
+                            </svg>
+                            Thêm thể loại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="table-responsive" data-simplebar>
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:25%">Thể loại</th>
+                        <th scope="col" style="width:37%">Khu vực</th>
+                        <th scope="col" style="width:38%"></th>
+                    </tr>
+                </thead>
+                <tbody id="genreList">
+                    @if (ViewBag.listGenres != null && ViewBag.listGenres.Count > 0)
+                    {
+                        foreach (var a in ViewBag.listGenres)
+                        {
+                            <tr>
+                                <td>
+                                    <p class="text-reset mb-0">@a[1]</p>
+                                </td>
+                                <td>
+                                    <p class="text-reset mb-0">@a[2]</p>
+                                </td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a href="@Url.Action("Edit", "Genres", new { Area = "Admin", id = a[0] })" class="btn btn-sm btn-icon btn-ghost-primary" title="Chỉnh sửa">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97m-.96 3.93a2.1 2.1 0 1 1 2.97 2.97m-3.604 -2.36l3.534 -3.534" /></svg>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-icon btn-ghost-danger" onclick="confirmDelete(@a[0])" title="Xóa">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v1" /></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center py-4">
+                                <p class="text-muted">Không có dữ liệu</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(genreId) {
+        if (confirm('Bạn có chắc chắn muốn xóa thể loại này?')) {
+            window.location.href = '/Admin/Genres/Delete/' + genreId;
+        }
+    }
+</script>

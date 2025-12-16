@@ -1,0 +1,326 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*------------------Chính--------------------*@
+
+<div class="container p-0">
+    <ol class="breadcrumb" aria-label="breadcrumbs" style="margin-top: 5px; background-color: white;">
+        <li class="breadcrumb-item"><a href="~/Home/Index">Trang chủ</a></li>
+        <li class="breadcrumb-item "><a href="~/Home/Playlist">Playlist-nhạc trẻ</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a href="">Varius Artist</a></li>
+    </ol>
+    <div class="row">
+        @*-------------------Main-page---------------*@
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 p-0">
+            @*-------------Playmusic----------------*@
+            <div class="new">
+                <!------------Phần nghe nhạc------------>
+                <div class="player">
+                    <!-- Phần ảnh và thông tin bài hát -->
+                    <div class="song-info">
+                        <div class="disc-container">
+                            <img id="song-image" src="../../Source/Musics-Image/@ViewBag.listSongPlay[0][8]" alt="Album Art">
+                        </div>
+                        <div class="song-details">
+                            <h3 id="song-title">@ViewBag.listSongPlay[0][2]</h3>
+                            <p id="song-artist">@ViewBag.listSongPlay[0][12]</p>
+                        </div>
+                    </div>
+                    <!-- END-Phần ảnh và thông tin bài hát -->
+                    <!-- Trình phát nhạc -->
+                    <audio controls autoplay style="width: 100%;" id="audioPlayer">
+                        <source id="audioPlayer" src="" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <!-- END-Trình phát nhạc -->
+                    <!-- Danh sách bài hát -->
+                    <ul id="playlist">
+                        @foreach (var a in ViewBag.listSongPlay)
+                        {
+                            <li data-src="../../Source/mp3/@a[7]" data-title="@a[2]"
+                                data-artist="@a[12]" data-image="../../Source/Musics-Image/@a[8]"
+                                data-lyric="@a[9]" data-album="@a[4]" style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <span class="lottie-animation" style="display: none;">
+                                        <lottie-player src="https://lottie.host/3015bfd6-3d5e-44ce-be00-d049f5998b2c/7rLr0vhuzw.json" background="transparent" speed="1" style="width: 20px; height: 20px;" loop autoplay></lottie-player>
+                                    </span>
+                                    <span class="track-number">@a[0].</span> @a[2]
+                                </div>
+                                <a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="cursor:pointer; color: black; padding-right: 5px"><i class="fas fa-outdent"></i></a>
+                            </li>
+                        }
+                    </ul>
+                    <!-- END-Danh sách bài hát -->
+                </div>
+                <!------------END-Phần nghe nhạc------------>
+                <!-----------------Phần lời bài hát-------------->
+                <div class="new">
+                    <div class="lyric-section">
+                        <div class="lyrics">
+                            <h3>Lời bài hát</h3>
+                            <pre id="song-lyric" class="lyric-content">@ViewBag.listSongPlay[0][9]</pre>
+                            <span id="toggle-lyrics" class="toggle-text">Xem thêm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-----------------END-Phần lời bài hát-------------->
+            </div>
+            @*-------------END-Playmusic----------------*@
+
+            @*-----------------Bai hat moi---------------*@
+            <div class="new">
+                <div class="new-title">
+                    <span class="title"><a href="">Bài Hát Mới</a></span>
+                </div>
+                <div class="new-list">
+                    @foreach (var a in ViewBag.list10BaiHatMoiNhat)
+                    {
+                        <div class="new-items">
+                            <a href="~/PlayMusic/Index?id=@a[0]" class="new-image" style="background-image: url('../../Source/Musics-Image/@a[4]')">
+                                <div class="overlay">
+                                    <i class="far fa-play-circle"></i>
+                                </div>
+                            </a>
+                            <div class="new-info">
+                                @if (a[1].Length >= 15)
+                                {
+                                    <a href="~/PlayMusic/Index?id=@a[0]" class="title-item">@a[1].Substring(0, 15) <i>...</i></a>
+                                }
+                                else
+                                {
+                                    <a href="~/PlayMusic/Index?id=@a[0]" class="title-item">@a[1]</a>
+                                }
+                                <a href="" class="singer-name">@a[8]</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            @*-----------------END-Bai hat moi---------------*@
+        </div>
+        @*-------------------END-Main-page---------------*@
+
+        @*------------------BXH----------------*@
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3 p-0">
+            @*-----------------Bảng xếp hạng---------------*@
+            <div class="song-chart">
+                <div class="most-listening p-0">
+                    <div class="new-title">
+                        <span class="title"><a href="/Leaderboard/Index">Bảng Xếp Hạng</a></span>
+                        <span class="see-all">
+                            <a href="/Leaderboard/Index">Nghe tất cả</a>
+                        </span>
+                    </div>
+                    @foreach (var a in ViewBag.Top10BXH)
+                    {
+
+                        if (int.Parse(a[0]) == 1)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number img-number-one font-weight-bold">
+                                    <font class="number-1" color=red>1</font>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else if (int.Parse(a[0]) == 2)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#f39c12>2</font>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else if (int.Parse(a[0]) == 3)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#1abc9c>3</font>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#7a7a7a>@a[0]</font>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            @*-----------------END-Bảng xếp hạng---------------*@
+        </div>
+    </div>
+    <!------------------END-Chính-------------------->
+    <!------------------Format số view----------------->
+    @functions { public string FormatViews(int views)
+        {
+            if (views >= 1000000000) // Trên 1 tỷ
+            {
+                return $"{views / 1000000000.0:F1}B"; // Chia cho 1 tỷ và định dạng
+            }
+            else if (views >= 1000000) // Trên 1 triệu
+            {
+                return $"{views / 1000000.0:F1}M"; // Chia cho 1 triệu và định dạng
+            }
+            else if (views >= 1000) // Trên 1 nghìn
+            {
+                return $"{views / 1000.0:F1}k"; // Chia cho 1 nghìn và định dạng
+            }
+            return views.ToString(); // Trả về số nguyên nếu không thuộc các điều kiện trên
+        } }
+    <!------------------END-Format số view----------------->
+
+<script>
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playlist = document.getElementById('playlist');
+    const songTitle = document.getElementById('song-title');
+    const songArtist = document.getElementById('song-artist');
+    const songImage = document.getElementById('song-image');
+    const songLyric = document.getElementById('song-lyric');
+    const playlistItems = document.querySelectorAll('#playlist li');
+
+    let currentIndex = 0; // Lưu trữ chỉ số của bài hát hiện tại
+
+    // Mặc định bài hát đầu tiên là active và phát
+    const defaultItem = playlistItems[currentIndex];
+    defaultItem.classList.add('active');
+    const lottieAnimation = defaultItem.querySelector('.lottie-animation');
+    lottieAnimation.style.display = 'inline-block'; // Hiện Lottie animation cho bài hát đầu tiên
+    const trackNumber = defaultItem.querySelector('.track-number');
+    trackNumber.style.display = 'none'; // Ẩn số thứ tự cho bài hát đầu tiên
+    audioPlayer.src = defaultItem.getAttribute('data-src');
+    songTitle.textContent = defaultItem.getAttribute('data-title');
+    songArtist.textContent = defaultItem.getAttribute('data-artist');
+    songImage.src = defaultItem.getAttribute('data-image');
+    audioPlayer.play();
+
+    // Đổi bài hát khi click vào playlist
+    playlist.addEventListener('click', (e) => {
+        if (e.target && e.target.nodeName === 'LI') {
+            changeSong(e.target);
+        }
+    });
+
+    // Hàm đổi bài hát
+    function changeSong(selectedItem) {
+        // Dọn dẹp lớp active cho tất cả bài hát
+        playlistItems.forEach((li) => {
+            li.classList.remove('active');
+            li.querySelector('.lottie-animation').style.display = 'none'; // Ẩn Lottie animation
+            li.querySelector('.track-number').style.display = 'inline'; // Hiển thị lại số thứ tự
+        });
+
+        // Thêm lớp active cho bài hát đang phát
+        selectedItem.classList.add('active');
+        const activeAnimation = selectedItem.querySelector('.lottie-animation');
+        activeAnimation.style.display = 'inline-block'; // Hiện Lottie animation cho bài hát đang phát
+
+        // Ẩn số thứ tự bài hát đang phát
+        const activeTrackNumber = selectedItem.querySelector('.track-number');
+        activeTrackNumber.style.display = 'none'; // Ẩn số thứ tự bài hát đang phát
+
+        // Cập nhật nguồn âm thanh và thông tin bài hát
+        const newSrc = selectedItem.getAttribute('data-src');
+        const newTitle = selectedItem.getAttribute('data-title');
+        const newArtist = selectedItem.getAttribute('data-artist');
+        const newImage = selectedItem.getAttribute('data-image');
+        const newLyric = selectedItem.getAttribute('data-lyric');
+
+        audioPlayer.src = newSrc;
+        songTitle.textContent = newTitle;
+        songArtist.textContent = newArtist;
+        songImage.src = newImage; // Cập nhật hình ảnh bài hát
+        songLyric.textContent = newLyric;
+
+        audioPlayer.play();
+    }
+
+    // Tự động chuyển đến bài tiếp theo khi bài hát hiện tại phát hết
+    audioPlayer.addEventListener('ended', () => {
+        currentIndex++;
+        if (currentIndex < playlistItems.length) {
+            changeSong(playlistItems[currentIndex]);
+        } else {
+            currentIndex = 0; // Quay lại bài hát đầu tiên nếu đã đến cuối danh sách
+            changeSong(playlistItems[currentIndex]);
+        }
+    });
+
+    const toggleButton = document.getElementById('toggle-lyrics');
+    const lyricsContent = document.getElementById('song-lyric');
+
+    toggleButton.addEventListener('click', () => {
+        lyricsContent.classList.toggle('expanded'); // Chuyển đổi lớp 'expanded'
+
+        // Thay đổi nội dung nút
+        if (lyricsContent.classList.contains('expanded')) {
+            toggleButton.textContent = 'Ẩn đi'; // Thay đổi nút thành "Ẩn đi"
+        } else {
+            toggleButton.textContent = 'Xem thêm'; // Đặt lại nút về "Xem thêm"
+        }
+    });
+</script>
+
+    <script src="https://unpkg.com/&commat;lottiefiles/lottie-player@latest/dist/lottie-player.js">
+        </script>
+
+    <link href="../../Content/Playmusic.css" rel="stylesheet" />

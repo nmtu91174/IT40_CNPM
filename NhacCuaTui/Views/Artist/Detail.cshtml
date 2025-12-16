@@ -1,0 +1,114 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var artist = ViewBag.Artist as System.Collections.ArrayList;
+    var songs = ViewBag.Songs as System.Collections.ArrayList;
+}
+
+@if (artist == null || artist.Count == 0)
+{
+    <div class="container mt-5">
+        <div class="alert alert-warning">Không tìm thấy ca sĩ.</div>
+    </div>
+}
+else
+{
+    var row = artist[0] as System.Collections.ArrayList;
+    var artistId = row.Count > 0 ? (row[0]?.ToString() ?? "") : "";
+    var artistName = row.Count > 1 ? (row[1]?.ToString() ?? "") : "";
+    var bio = row.Count > 2 ? (row[2]?.ToString() ?? "") : "";
+    var avatarImage = row.Count > 3 ? (row[3]?.ToString() ?? "") : "";
+
+    <div class="container mt-5">
+        <!-- Artist Header -->
+        <div class="row mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 10px; color: white;">
+            <div class="col-md-3 text-center">
+                @if (!string.IsNullOrEmpty(avatarImage))
+                {
+                    <img src="~/Source/Artists-Image/@avatarImage" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid white;" alt="@artistName">
+                }
+                else
+                {
+                    <div style="width: 200px; height: 200px; border-radius: 50%; background-color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                        <i class="fas fa-user-circle" style="font-size: 100px; color: white;"></i>
+                    </div>
+                }
+            </div>
+            <div class="col-md-9">
+                <h1 style="font-weight: bold; margin-bottom: 20px;">🎤 @artistName</h1>
+                <p style="font-size: 1.1em; line-height: 1.6;">
+                    @(string.IsNullOrEmpty(bio) ? "Không có thông tin chi tiết" : bio)
+                </p>
+            </div>
+        </div>
+
+        <!-- Songs Section -->
+        <h2 style="color: #667eea; margin-bottom: 30px;">🎵 Bài hát của @artistName</h2>
+
+        @if (songs == null || songs.Count == 0)
+        {
+            <div class="alert alert-info">Ca sĩ này chưa có bài hát nào.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th>#</th>
+                            <th>Tên bài hát</th>
+                            <th>Album</th>
+                            <th>Thể loại</th>
+                            <th style="text-align: center;">👁️ Lượt nghe</th>
+                            <th style="text-align: center;">❤️ Lượt thích</th>
+                            <th>Ngày phát hành</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int index = 1;
+                            foreach (var s in songs)
+                            {
+                                var songRow = s as System.Collections.ArrayList;
+                                if (songRow == null) { continue; }
+
+                                var songId = songRow.Count > 0 ? (songRow[0]?.ToString() ?? "") : "";
+                                var songName = songRow.Count > 1 ? (songRow[1]?.ToString() ?? "") : "";
+                                var releaseDate = songRow.Count > 2 ? (songRow[2]?.ToString() ?? "") : "";
+                                var albumName = songRow.Count > 7 ? (songRow[7]?.ToString() ?? "") : "";
+                                var genreName = songRow.Count > 8 ? (songRow[8]?.ToString() ?? "") : "";
+                                var views = songRow.Count > 5 ? (songRow[5]?.ToString() ?? "0") : "0";
+                                var likes = songRow.Count > 6 ? (songRow[6]?.ToString() ?? "0") : "0";
+
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="font-weight: bold; color: #667eea;">@index</td>
+                                    <td>
+                                        <strong><a href="/PlayMusic/Index?id=@songId" style="color: #333; text-decoration: none;">@songName</a></strong>
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(albumName) ? "-" : albumName)</td>
+                                    <td>
+                                        <span class="badge bg-info">@(string.IsNullOrEmpty(genreName) ? "-" : genreName)</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge bg-secondary">@views</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge bg-danger">@likes</span>
+                                    </td>
+                                    <td>@releaseDate</td>
+                                </tr>
+                                index++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <!-- Back Button -->
+        <div class="mt-4 mb-5">
+            <a href="@Url.Action("Index", "Artist")" class="btn btn-outline-secondary">
+                ← Quay lại danh sách ca sĩ
+            </a>
+        </div>
+    </div>
+}

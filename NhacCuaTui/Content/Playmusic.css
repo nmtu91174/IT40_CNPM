@@ -1,0 +1,207 @@
+﻿/* Giao diện chính của trình phát nhạc */
+.player {
+    background-color: #fff;
+    width: 90%;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-left: 3%;
+    position: relative;
+    overflow: hidden;
+    place-content: center;
+}
+
+/* Thông tin bài hát */
+.song-info {
+    display: flex;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+
+.cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.song-details {
+    margin-left: 15px;
+}
+
+    .song-details h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .song-details p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        color: #777;
+    }
+
+
+/* Danh sách bài hát */
+#playlist {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+    #playlist li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: flex-start;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        color: #333;
+    }
+
+        #playlist li:hover {
+            background-color: #f7f7f7;
+            color: #007bff;
+        }
+
+        #playlist li.active {
+            background-color: #f7f7f7;
+            color: #007bff;
+        }
+
+        #playlist li span {
+            width: 20px;
+            font-size: 16px;
+            color: #999;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+    /* Scrollbar cho playlist */
+    #playlist::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #playlist::-webkit-scrollbar-thumb {
+        background-color: #007bff;
+        border-radius: 10px;
+    }
+
+/* Định dạng cho lottie-player */
+.playing .lottie-animation {
+    display: inline-block;
+    width: 20px; /* Kích thước của animation */
+    height: 20px; /* Kích thước của animation */
+}
+
+/* Hiệu ứng animation cho số thứ tự bài hát đang phát */
+.playing .track-number {
+    animation: shake 0.5s infinite; /* Animation rung lắc */
+    color: #ffcc00; /* Màu vàng cho số thứ tự bài hát */
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0);
+    }
+
+    25% {
+        transform: translate(-2px);
+    }
+
+    50% {
+        transform: translate(2px);
+    }
+
+    75% {
+        transform: translate(-2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
+/* Định dạng hình đĩa nhạc */
+.disc-container {
+    position: relative;
+    width: 120px; /* Kích thước của đĩa nhạc */
+    height: 120px; /* Kích thước của đĩa nhạc */
+    margin: 5px; /* Căn giữa đĩa nhạc */
+    overflow: hidden; /* Ẩn phần ngoài của đĩa nhạc */
+    border-radius: 50%; /* Biến thành hình tròn */
+    border: 10px solid #000; /* Đường viền cho đĩa nhạc */
+}
+
+    .disc-container img {
+        width: 100%; /* Chiều rộng hình ảnh đầy đủ */
+        height: 100%; /* Chiều cao hình ảnh đầy đủ */
+        border-radius: 50%; /* Biến hình ảnh thành hình tròn */
+        animation: spin 10s linear infinite; /* Hiệu ứng quay */
+    }
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/*Lyric*/
+.music-player {
+    margin: 0 auto;
+    min-width: 800px;
+}
+
+.song-info {
+    text-align: center;
+}
+
+
+figure {
+    margin: 0;
+}
+
+.lyric-section {
+    margin-top: 30px;
+}
+
+.lyrics {
+    white-space: pre-wrap; /* Giữ định dạng xuống dòng */
+    background-color: #f0f0f0;
+    padding: 0px 15px;
+    border-radius: 10px;
+    width: 97%;
+    align-items: center;
+}
+
+.lyric-content {
+    margin-left: 5px;
+    max-height: 5em; /* Giới hạn chiều cao tối đa cho 5 dòng */
+    overflow: hidden; /* Ẩn phần lời bên dưới */
+    transition: max-height 0.5s ease; /* Hiệu ứng chuyển tiếp khi mở rộng */
+}
+
+    .lyric-content.expanded {
+        max-height: max-content; /* Tăng chiều cao tối đa khi mở rộng */
+        transition: max-height 0.5s ease;
+    }
+
+.toggle-text {
+    color: black; /* Màu chữ cho "Xem thêm" */
+    cursor: pointer; /* Hiển thị con trỏ tay khi di chuột qua */
+    display: inline-block; /* Hiển thị trên cùng một dòng */
+}
+
+    .toggle-text:hover {
+        text-decoration: underline; /* Gạch chân khi di chuột qua */
+    }

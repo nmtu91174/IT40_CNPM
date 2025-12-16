@@ -1,0 +1,36 @@
+﻿@using System.Collections
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var album = (ArrayList)ViewBag.Album;
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="page-header">
+            <h2 class="page-title">Xóa album</h2>
+        </div>
+
+        <div class="mb-3">
+            <img src="../../Source/Albums-Image/@(album[3])" alt="Cover" style="max-width:200px;" />
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-3">Tên album</dt>
+            <dd class="col-sm-9">@album[1]</dd>
+
+            <dt class="col-sm-3">Ca sĩ</dt>
+            <dd class="col-sm-9">@album[5]</dd>
+
+            <dt class="col-sm-3">Ngày ra mắt</dt>
+            <dd class="col-sm-9">@album[4]</dd>
+        </dl>
+
+        @using (Html.BeginForm("XoaAlbum", "Albums", new { area = "Admin", id = album[0] }, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <p class="text-danger">Hành động này không thể hoàn lại. Bạn có chắc muốn xóa album này?</p>
+            <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+            <a href="~/Admin/Albums/Index" class="btn btn-secondary">Hủy</a>
+        }
+    </div>
+</div>

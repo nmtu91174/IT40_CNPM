@@ -1,0 +1,50 @@
+﻿<div class="card">
+    <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">SỬA CA SĨ</h5>
+        <form action="~/Admin/Artists/SuaCaSi" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="@ViewBag.GetArtistById[0][0]" />
+            <div class="mb-3">
+                <label for="artistname" class="form-label">Tên ca sĩ</label>
+                <input type="text" class="form-control" aria-describedby="emailHelp" name="artistname" value="@ViewBag.GetArtistById[0][1]" required>
+                <div id="emailHelp" class="form-text">Tên của ca sĩ.</div>
+            </div>
+            <div class="mb-3">
+                <label for="bio" class="form-label">Bio</label>
+                <textarea class="form-control" data-bs-toggle="autosize" aria-describedby="emailHelp" name="bio" >@ViewBag.GetArtistById[0][2]</textarea>
+                <div id="emailHelp" class="form-text">Bio ca sĩ.</div>
+            </div>
+            <input type="hidden" name="avatar_image" value="@ViewBag.GetArtistById[0][3]" />
+            <div class="mb-3">
+                <label for="avatar_image2" class="form-label">Hình ca sĩ</label>
+                <input type="file" accept=".jpg, .jpeg, .png" class="form-control" id="exampleInputEmail1"
+                       aria-describedby="emailHelp" name="avatar_image2">
+                <div id="emailHelp" class="form-text">Hình ca sĩ muốn thay đổi.</div>
+            </div>
+            @if (Session["EditArtist_Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Session["EditArtist_Error"].ToString()
+                </div>
+            }
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_alert">Sửa</button>
+            <button type="button" class="btn btn-default" onclick="window.location.href = '../../Admin/Artists/Index'" style="margin-left: 20px;">Quay lại</button>
+            <div class="modal" id="edit_alert" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Sửa thông tin</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có muốn sửa thông tin ca sĩ này?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn me-auto" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Đồng ý</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,440 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Genres = ViewBag.Genres.ToString();
+}
+
+
+
+<div class="container p-0">
+    <div class="row">
+        @*-------------------Main-page---------------*@
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 p-0">
+            <div class="genres-list">
+                <!-- Vietnam Section -->
+                <ul class="genre-category">
+                    <li class="cate-header">VIỆT NAM</li>
+                    <li>
+                        <ul class="list-person">
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Trẻ">Nhạc Trẻ</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Trữ Tình">Trữ Tình</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Remix Việt">Remix Việt</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Rap Việt">Rap Việt</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Tiền Chiến">Tiền Chiến</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Trịnh">Nhạc Trịnh</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Rock Việt">Rock Việt</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Cách Mạng">Cách Mạng</a></li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+
+                <!-- Western Section -->
+                <ul class="genre-category">
+                    <li class="cate-header">ÂU MỸ</li>
+                    <li>
+                        <ul class="list-person">
+                            <li><a href="../../Home/TheLoai?Genres=Pop">Pop</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Rock">Rock</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Electronica/Dance">Electronica/Dance</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=R&B/Hip Hop/Rap">R&B/Hip Hop/Rap</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Blues/Jazz">Blues/Jazz</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Country">Country</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Latin">Latin</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Indie">Indie</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Âu Mỹ khác">Âu Mỹ khác</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                        <!-- Asia Section -->
+                <ul class="genre-category">
+                    <li class="cate-header">CHÂU Á</li>
+                    <li>
+                        <ul class="list-person">
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Hàn">Nhạc Hàn</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Hoa">Nhạc Hoa</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Nhật">Nhạc Nhật</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Nhạc Thái">Nhạc Thái</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                        <!-- Other Section -->
+                <ul class="genre-category">
+                    <li class="cate-header">KHÁC</li>
+                    <li>
+                        <ul class="list-person">
+                            <li><a href="../../Home/TheLoai?Genres=Thiếu Nhi">Thiếu Nhi</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Không Lời">Không Lời</a></li>
+                            <li><a href="../../Home/TheLoai?Genres=Beat">Beat</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content">
+                <h2>
+                    BÀI HÁT @Genres.ToUpper()
+                </h2>
+                <ul class="song-list">
+                    @foreach (var a in ViewBag.listAllSongs)
+                    {
+                        <li>
+                            <img alt="Album cover of Rê NDM" height="50" src="../../Source/Musics-Image/@a[4]" width="50" />
+                            <div class="song-info">
+                                <a href="~/PlayMusic/Index?id=@a[0]" style="color: black"><h4>@a[1]</h4></a>
+                                <p>@a[9]</p>
+                            </div>
+                            <div class="tags">
+                                <span class="official">
+                                    OFFICIAL
+                                </span>
+                                <span class="hq">
+                                    HQ
+                                </span>
+                            </div>
+                            <div class="actions">
+                                <a href="~/PlayMusic/Index?id=@a[0]" style="color: black">
+                                    <i class="fas fa-play">
+                                    </i>
+                                </a>
+                                <i class="fas fa-share-alt">
+                                </i>
+                                <a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3 p-0">
+            @*-----------------Bảng xếp hạng---------------*@
+            <div class="song-chart">
+                <div class="most-listening p-0">
+                    <div class="new-title">
+                        <span class="title"><a href="/Leaderboard/Index">Bảng Xếp Hạng</a></span>
+                        <span class="see-all">
+                            <a href="/Leaderboard/Index">Nghe tất cả</a>
+                        </span>
+                    </div>
+                    @foreach (var a in ViewBag.Top10BXH)
+                    {
+                        if (int.Parse(a[0]) == 1)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number img-number-one font-weight-bold">
+                                    <font class="number-1" color=red>1</font>
+                                </div>
+                                <div class="item-img">
+                                    <a href=""><img src="" alt=""></a>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else if (int.Parse(a[0]) == 2)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#f39c12>2</font>
+                                </div>
+                                <div class="item-img">
+                                    <a href=""><img src="" alt=""></a>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else if (int.Parse(a[0]) == 3)
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#1abc9c>3</font>
+                                </div>
+                                <div class="item-img">
+                                    <a href=""><img src="" alt=""></a>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="listening-item">
+                                <div class="chart-number p-2 font-weight-bold">
+                                    <font color=#7a7a7a>@a[0]</font>
+                                </div>
+                                <div class="item-img">
+                                    <a href=""><img src="?random=1" alt=""></a>
+                                </div>
+                                <div class="new-info">
+                                    @if (a[2].Length >= 17)
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2].Substring(0, 17) <i>...</i></a></p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/PlayMusic/Index?id=@a[1]" class="title-item">@a[2]</a></p>
+                                    }
+                                    <p><a href="" class="singer-name">@a[7]</a></p>
+
+                                </div>
+                                <div class="views"><i class="fas fa-headphones-alt"></i>@FormatViews(int.Parse(a[3]))</div>
+                                <div class="list-inline-item"><a onclick="showPlaylistPopup(@a[0], '@a[1]')" style="margin-right:5px; cursor:pointer"><i class="fas fa-outdent"></i></a><a href="~/PlayMusic/Index?id=@a[1]"><i class="fas fa-play"></i></a></div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            @*-----------------END-Bảng xếp hạng---------------*@
+            @*-----------------Nghệ sĩ nổi bật---------------*@
+            <div class="hot-singers">
+                <span class="title"><a href="">Nghệ Sỹ Nổi Bật</a></span>
+                <div class="list-hot-singers">
+                    @foreach (var a in ViewBag.Top6CaSi)
+                    {
+                        if (int.Parse(a[5]) == 1)
+                        {
+                            <div class="hot-singers-item hot-most">
+                                <a href="" class="img-hot" style='background-image: url("../../Source/Artists-Image/@a[3]");'>
+                                    <span class="hot-singer-name big">@a[1]</span>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="hot-singers-item">
+                                <a href="" class="img-hot" style='background-image: url("../../Source/Artists-Image/@a[3]");'>
+                                    <span class="hot-singer-name">@a[1]</span>
+                                </a>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            @*-----------------END-Nghệ sĩ nổi bật---------------*@
+            @*------------------Trình chiếu---------------------*@
+        </div>
+        @*------------------END-BXH----------------*@
+    </div>
+</div>
+<!------------------END-Chính-------------------->
+<!------------------Format số view----------------->
+@functions { public string FormatViews(int views)
+    {
+        if (views >= 1000000000) // Trên 1 tỷ
+        {
+            return $"{views / 1000000000.0:F1}B"; // Chia cho 1 tỷ và định dạng
+        }
+        else if (views >= 1000000) // Trên 1 triệu
+        {
+            return $"{views / 1000000.0:F1}M"; // Chia cho 1 triệu và định dạng
+        }
+        else if (views >= 1000) // Trên 1 nghìn
+        {
+            return $"{views / 1000.0:F1}k"; // Chia cho 1 nghìn và định dạng
+        }
+        return views.ToString(); // Trả về số nguyên nếu không thuộc các điều kiện trên
+    } }
+
+
+<style>
+    .genres-list {
+        margin: auto;
+        border-radius: 8px;
+        padding: 20px;
+        color: black;
+        display: flex;
+        flex-direction: column;
+        padding-top: 50px;
+    }
+
+    .genre-category {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 1em;
+        border-top: 1px solid #444;
+    }
+
+    .cate-header {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin: 10px 0;
+        text-transform: uppercase;
+        color: #ff3b3b; /* Accent color */
+    }
+
+    .list-person {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 1em;
+    }
+
+        .list-person li {
+            margin-right: 30px;
+        }
+
+        .genre-category li a {
+            color: black;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.2s ease;
+        }
+
+        .genre-category li a:hover,
+        .genre-category li a.active {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .view-more button {
+            background: none;
+            border: none;
+            color: #ff3b3b;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+    .more-genres {
+        display: none;
+        padding-top: 10px;
+    }
+
+        .more-genres li {
+            padding-left: 10px;
+            font-size: 0.9em;
+        }
+
+            .more-genres li a {
+                color: #d1d1d1;
+            }
+
+                .more-genres li a:hover {
+                    color: #fff;
+                }
+
+
+    .content {
+        width: 90%;
+    }
+
+        .content h2 {
+            color: #00aaff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+    .song-list {
+        list-style: none;
+        padding: 0;
+        margin: 10px 5px;
+    }
+
+        .song-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .song-list img {
+            width: 60px;
+            height: 60px;
+            margin-right: 20px;
+        }
+
+        .song-list .song-info {
+            flex-grow: 1;
+        }
+
+            .song-list .song-info h4 {
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .song-list .song-info p {
+                margin: 0;
+                color: #666;
+            }
+
+        .song-list .tags {
+            display: flex;
+            align-items: center;
+        }
+
+            .song-list .tags span {
+                background-color: #ccc;
+                color: #fff;
+                padding: 2px 5px;
+                border-radius: 3px;
+                margin-right: 5px;
+                font-size: 12px;
+            }
+
+                .song-list .tags span.hq {
+                    background-color: #00aaff;
+                }
+
+        .song-list .actions {
+            display: flex;
+            align-items: center;
+        }
+
+            .song-list .actions i {
+                margin-left: 10px;
+                cursor: pointer;
+            }
+
+
+    @@media screen and (max-width: 1190px) {
+      .detail_menu_browsing_dashboard {
+        width: 668px;
+      }
+    }
+    .detail_menu_browsing_dashboard {
+      width: 840px;
+      float: left;
+      margin-bottom: 10px;
+    }
+</style>

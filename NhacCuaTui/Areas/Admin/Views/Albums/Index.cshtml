@@ -1,0 +1,186 @@
+﻿<!---------------------Albums------------------->
+<div class="card">
+    <div class="card-body">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Albums</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="d-flex">
+                        <div class="me-3 d-none d-md-block">
+                            <div class="input-icon">
+                                <input type="text" id="albumSearch" class="form-control" placeholder="Tìm kiếm…" />
+                            </div>
+                        </div>
+                        <a href="../../Admin/Albums/AddAlbum" class="btn btn-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 5l0 14"></path>
+                                <path d="M5 12l14 0"></path>
+                            </svg>
+                            Thêm album
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive" data-simplebar>
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th style="width:40%">Album</th>
+                        <th style="width:20%">Ca sĩ</th>
+                        <th style="width:20%">Ra mắt ngày</th>
+                        <th class="w-1" style="width:20%"></th>
+                    </tr>
+                </thead>
+                <tbody id="albumList">
+                    @foreach (var a in ViewBag.listAlbums)
+                    {
+                        string releaseDateString = a[2]; // Giả sử a[2] là ngày ra mắt
+                        DateTime releaseDate;
+                        string formattedReleaseDate = "";
+
+                        try
+                        {
+                            if (DateTime.TryParse(releaseDateString, out releaseDate)) // Sử dụng TryParse để xử lý lỗi
+                            {
+                                formattedReleaseDate = releaseDate.ToString("dd/MM/yyyy"); // Định dạng ngày tháng
+                            }
+                            else
+                            {
+                                formattedReleaseDate = "Ngày không hợp lệ"; // Hoặc có thể để trống
+                            }
+                        }
+                        catch (FormatException)
+                        {
+                            formattedReleaseDate = "Ngày không hợp lệ"; // Xử lý lỗi định dạng
+                        }
+
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="me-4">
+                        <img src="../../Source/Albums-Image/@a[3]"
+                             width="50"
+                             height="50"
+                             class="rounded-circle"
+                             alt="" />
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bolder">@a[1]</h6>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <p class="fs-3 fw-normal mb-0">@a[5]</p>
+            </td>
+            <td>
+                <p class="fs-3 fw-normal mb-0">@formattedReleaseDate</p>
+            </td>
+            <td>
+                <a href="~/Admin/Albums/EditAlbum?id=@a[0]">
+                    <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                </a>
+                <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert-@a[0]"><i class="ti ti-x fs-7 text-danger"></i></button>
+                <!---------Xóa modal---------->
+                <div class="modal" id="deleteAlert-@a[0]" tabindex="-1">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-status bg-danger"></div>
+                            <div class="modal-body text-center py-4">
+                                <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="#fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                <h3>Xóa ?</h3>
+                                <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <a href="#" class="btn w-100" data-bs-dismiss="modal">Hủy</a>
+                                        </div>
+                                        <div class="col">
+                                            <a href="~/Admin/Albums/XoaAlbum?id=@a[0]" class="btn btn-danger w-100">Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!---------END-Xóa modal---------->
+            </td>
+        </tr>}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Giả sử ViewBag.listAlbums chứa các thông tin album dưới dạng mảng JSON
+    var listAlbums = @Html.Raw(Json.Encode(ViewBag.listAlbums));
+
+    function searchAlbum() {
+        var input = document.getElementById('albumSearch').value.toLowerCase(); // Lấy giá trị từ input và chuyển thành chữ thường
+        var albumList = document.getElementById('albumList'); // Vị trí hiển thị danh sách album (tbody của bảng)
+        albumList.innerHTML = ''; // Xóa nội dung cũ của bảng
+
+        // Lọc album theo tên (hoặc có thể tìm kiếm theo tiêu chí khác như ca sĩ)
+        var filteredAlbums = listAlbums.filter(function(album) {
+            return album[1].toLowerCase().includes(input) || album[5].toLowerCase().includes(input); // album[1] là tên album, album[5] là ca sĩ
+        });
+
+        // Cập nhật bảng với các album đã lọc
+        filteredAlbums.forEach(function(album) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="me-4">
+                            <img src="../../Source/Albums-Image/${album[3]}" width="50" height="50" class="rounded-circle" alt="${album[1]}" />
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bolder">${album[1]}</h6>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${album[5]}</p> <!-- Ca sĩ -->
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${formatDate(album[4])}</p> <!-- Ngày phát hành -->
+                </td>
+                <td>
+                    <a href="~/Admin/Albums/EditAlbum?id=${album[0]}">
+                        <button type="button" class="btn btn-outline-warning m-1">
+                            <i class="ti ti-edit fs-7 text-warning"></i>
+                        </button>
+                    </a>
+                    <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert-${album[0]}">
+                        <i class="ti ti-x fs-7 text-danger"></i>
+                    </button>
+                </td>
+            `;
+            albumList.appendChild(tr); // Thêm hàng mới vào bảng
+        });
+
+        // Nếu không tìm thấy album nào
+        if (filteredAlbums.length === 0) {
+            albumList.innerHTML = '<tr><td colspan="5" class="text-center">Không tìm thấy album nào</td></tr>';
+        }
+    }
+
+    // Hàm định dạng ngày tháng theo dd/MM/yyyy
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        var day = String(date.getDate()).padStart(2, '0'); // Ngày
+        var month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng (cộng 1 vì tháng bắt đầu từ 0)
+        var year = date.getFullYear(); // Năm
+        return `${day}/${month}/${year}`; // Trả về định dạng dd/MM/yyyy
+    }
+
+    // Gọi hàm searchAlbum mỗi khi người dùng nhập liệu vào ô tìm kiếm
+    document.getElementById('albumSearch').addEventListener('input', searchAlbum);
+</script>

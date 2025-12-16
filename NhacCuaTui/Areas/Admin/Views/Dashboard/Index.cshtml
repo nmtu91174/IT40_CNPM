@@ -1,0 +1,284 @@
+﻿<!-- Statistics Cards -->
+<div class="row mb-4" id="stats-container">
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card border-0 rounded-3 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-title mb-1">Tổng Bài Hát</h6>
+                        <h3 class="mb-0" id="total-songs">0</h3>
+                    </div>
+                    <i class="ti ti-music fs-3 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card border-0 rounded-3 shadow-sm bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-title mb-1">Tổng Nghệ Sĩ</h6>
+                        <h3 class="mb-0" id="total-artists">0</h3>
+                    </div>
+                    <i class="ti ti-user-heart fs-3 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card border-0 rounded-3 shadow-sm bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-title mb-1">Tổng Album</h6>
+                        <h3 class="mb-0" id="total-albums">0</h3>
+                    </div>
+                    <i class="ti ti-disc fs-3 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card border-0 rounded-3 shadow-sm bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-title mb-1">Tổng Người Dùng</h6>
+                        <h3 class="mb-0" id="total-users">0</h3>
+                    </div>
+                    <i class="ti ti-users fs-3 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card border-0 rounded-3 shadow-sm bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-title mb-1">Tổng Lượt Nghe</h6>
+                        <h3 class="mb-0" id="total-plays">0</h3>
+                    </div>
+                    <i class="ti ti-headphones fs-3 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row">
+    <!-- Top Songs by Plays -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Top 10 Bài Hát (Theo Lượt Nghe)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="topSongsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Artists by Likes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Top 10 Nghệ Sĩ (Theo Lượt Thích)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="topArtistsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Songs by Genre -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Số Bài Hát Theo Thể Loại</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Albums -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Top 10 Album (Theo Số Bài Hát)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="topAlbumsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+    // Colors for charts
+    const colors = {
+        primary: '#007bff',
+        success: '#28a745',
+        danger: '#dc3545',
+        warning: '#ffc107',
+        info: '#17a2b8',
+        purple: '#6f42c1',
+        pink: '#e83e8c',
+        orange: '#fd7e14'
+    };
+
+    // Load statistics
+    function loadStatistics() {
+        fetch('/Admin/Report/GetTotalStatistics')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('total-songs').textContent = data.totalSongs;
+                document.getElementById('total-artists').textContent = data.totalArtists;
+                document.getElementById('total-albums').textContent = data.totalAlbums;
+                document.getElementById('total-users').textContent = data.totalUsers;
+                document.getElementById('total-plays').textContent = data.totalPlays.toLocaleString();
+            });
+    }
+
+    // Top Songs Chart
+    function loadTopSongsChart() {
+        fetch('/Admin/Report/GetTopSongsByPlays')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('topSongsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.name.substring(0, 30)),
+                        datasets: [{
+                            label: 'Lượt Nghe',
+                            data: data.map(item => item.plays),
+                            backgroundColor: colors.primary,
+                            borderColor: colors.primary,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            });
+    }
+
+    // Top Artists Chart
+    function loadTopArtistsChart() {
+        fetch('/Admin/Report/GetTopArtistsByLikes')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('topArtistsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.name),
+                        datasets: [{
+                            label: 'Lượt Thích',
+                            data: data.map(item => item.likes),
+                            backgroundColor: colors.success,
+                            borderColor: colors.success,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            });
+    }
+
+    // Songs by Genre Chart
+    function loadGenreChart() {
+        fetch('/Admin/Report/GetSongsByGenre')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('genreChart').getContext('2d');
+                const colorArray = [colors.primary, colors.success, colors.danger, colors.warning, colors.info, colors.purple, colors.pink, colors.orange];
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(item => item.name),
+                        datasets: [{
+                            data: data.map(item => item.count),
+                            backgroundColor: colorArray.slice(0, data.length),
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    // Top Albums Chart
+    function loadTopAlbumsChart() {
+        fetch('/Admin/Report/GetTopAlbumsByViews')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('topAlbumsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.name.substring(0, 25)),
+                        datasets: [{
+                            label: 'Số Bài Hát',
+                            data: data.map(item => item.songs),
+                            backgroundColor: colors.danger,
+                            borderColor: colors.danger,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            });
+    }
+
+    // Load all charts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStatistics();
+        loadTopSongsChart();
+        loadTopArtistsChart();
+        loadGenreChart();
+        loadTopAlbumsChart();
+    });
+</script>

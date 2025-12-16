@@ -1,0 +1,217 @@
+﻿<div class="card">
+    <div class="card-body">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Ca sĩ</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="d-flex">
+                        <div class="me-3 d-none d-md-block">
+                            <div class="input-icon">
+                                <input type="text" id="artistSearch" class="form-control" placeholder="Tìm kiếm…" />
+                            </div>
+                        </div>
+                        <a href="~/Admin/Artists/AddArtist" class="btn btn-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 5l0 14"></path>
+                                <path d="M5 12l14 0"></path>
+                            </svg>
+                            Thêm ca sĩ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive" data-simplebar>
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:25%">Ca sĩ</th>
+                        <th scope="col" style="width:37%">Bio</th>
+                        <th scope="col" style="width:10%">Tạo</th>
+                        <th scope="col" style="width:10%">Cập nhật</th>
+                        <th scope="col" style="width:18%"></th>
+                    </tr>
+                </thead>
+                <tbody id="artistList">
+                    @foreach (var a in ViewBag.listArtists)
+                    {
+                        string createDateString = a[4]; // Giả sử a[4] là ngày tạo
+                        string updateDateString = a[5]; // Giả sử a[5] là ngày cập nhật
+                        DateTime createDate;
+                        DateTime updateDate;
+                        string formattedCreateDate = "";
+                        string formattedUpdateDate = "";
+
+                        try
+                        {
+                            createDate = DateTime.Parse(createDateString); // Chuyển đổi chuỗi thành DateTime
+                            formattedCreateDate = createDate.ToString("dd/MM/yyyy"); // Định dạng ngày tháng
+                        }
+                        catch (FormatException)
+                        {
+                            formattedCreateDate = "Ngày không hợp lệ"; // Thay thế nếu định dạng không hợp lệ
+                        }
+
+                        try
+                        {
+                            updateDate = DateTime.Parse(updateDateString); // Chuyển đổi chuỗi thành DateTime
+                            formattedUpdateDate = updateDate.ToString("dd/MM/yyyy"); // Định dạng ngày tháng
+                        }
+                        catch (FormatException)
+                        {
+                            formattedUpdateDate = "Ngày không hợp lệ"; // Thay thế nếu định dạng không hợp lệ
+                        }
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-4">
+                                        <img src="../../Source/Artists-Image/@a[3]"
+                                             width="50"
+                                             height="50"
+                                             class="rounded-circle"
+                                             alt="" />
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bolder">@a[1]</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@a[2]</p>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@formattedCreateDate</p>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@formattedUpdateDate</p>
+                            </td>
+                            <td>
+                                @if (a[4] != "Admin")
+                                {
+                                    <a href="~/Admin/Artists/EditArtist?id=@a[0]">
+                                        <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                                    </a> // Xóa
+                                    <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert-@a[0]"><i class="ti ti-x fs-7 text-danger"></i></button> 
+                                    <!---------Xóa modal---------->
+                                    <div class="modal fade" id="deleteAlert-@a[0]" tabindex="-1" aria-labelledby="deleteAlertLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-status bg-danger"></div>
+                                                <div class="modal-body text-center py-4">
+                                                    <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="#fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                                    <h3>Xóa ?</h3>
+                                                    <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="w-100">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <button class="btn w-100" data-bs-dismiss="modal">Hủy</button>
+                                                            </div>
+                                                            <div class="col">
+                                                                <a href="~/Admin/Artists/XoaCaSi?id=@a[0]" class="btn btn-danger w-100">Xóa</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <!---------END-Xóa modal---------->
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Giả sử ViewBag.listArtists chứa các thông tin nghệ sĩ dưới dạng mảng JSON
+    var listArtists = @Html.Raw(Json.Encode(ViewBag.listArtists));
+
+    function searchArtist() {
+        var input = document.getElementById('artistSearch').value.toLowerCase(); // Lấy giá trị từ input và chuyển thành chữ thường
+        var artistList = document.getElementById('artistList'); // Vị trí hiển thị danh sách nghệ sĩ (tbody của bảng)
+        artistList.innerHTML = ''; // Xóa nội dung cũ của bảng
+
+        // Lọc nghệ sĩ theo tên nghệ sĩ
+        var filteredArtists = listArtists.filter(function(artist) {
+            return artist[1].toLowerCase().includes(input); // artist[1] là tên ca sĩ
+        });
+
+        // Cập nhật bảng với các nghệ sĩ đã lọc
+        filteredArtists.forEach(function(artist) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="me-4">
+                            <img src="../../Source/Artists-Image/${artist[3]}" width="50" height="50" class="rounded-circle" alt="" />
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bolder">${artist[1]}</h6>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${artist[2]}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${new Date(artist[4]).toLocaleDateString('en-GB')}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${new Date(artist[5]).toLocaleDateString('en-GB')}</p>
+                </td>
+                <td>
+                    ${artist[4] != "Admin" ? `
+                        <a href="../../../Admin/Artists/EditArtist?id=${artist[0]}">
+                            <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert-${artist[0]}"><i class="ti ti-x fs-7 text-danger"></i></button>
+                        <!---------Xóa modal---------->
+                            <div class="modal fade" id="deleteAlert-${artist[0]}" tabindex="-1" aria-labelledby="deleteAlertLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-sm" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-status bg-danger"></div>
+                                        <div class="modal-body text-center py-4">
+                                            <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="#fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                            <h3>Xóa ?</h3>
+                                            <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <div class="w-100">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <button class="btn w-100" data-bs-dismiss="modal">Hủy</button>
+                                                    </div>
+                                                    <div class="col">
+                                                        <a href="../../../Admin/Artists/XoaCaSi?id=${artist[0]}" class="btn btn-danger w-100">Xóa</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    ` : ''}
+                </td>
+            `;
+            artistList.appendChild(tr); // Thêm hàng mới vào bảng
+        });
+
+        // Nếu không tìm thấy nghệ sĩ nào
+        if (filteredArtists.length === 0) {
+            artistList.innerHTML = '<tr><td colspan="5" class="text-center">Không tìm thấy nghệ sĩ nào</td></tr>';
+        }
+    }
+
+    // Gọi hàm searchArtist mỗi khi người dùng nhập liệu vào ô tìm kiếm
+    document.getElementById('artistSearch').addEventListener('input', searchArtist);
+</script>

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "target": "ES5"
+  },
+  "include": [],
+  "exclude": [
+    "**/*",
+    "assets",
+    "packages",
+    "node_modules",
+    "obj",
+    "bin"
+  ]
+}

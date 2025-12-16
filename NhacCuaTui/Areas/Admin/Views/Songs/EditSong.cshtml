@@ -1,0 +1,167 @@
+﻿@using System;
+@using System.Globalization;
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">SỬA BÀI HÁT</h5>
+        <form action="~/Admin/Songs/SuaBaiHat" method="post" enctype="multipart/form-data">
+            <!-- Hidden Input: ID bài hát -->
+            <input type="hidden" name="song_id" value="@ViewBag.GetSongById[0][0]" />
+
+            <!-- Input: Tên bài hát -->
+            <div class="mb-3">
+                <label for="songname" class="form-label">Tên bài hát</label>
+                <input type="text" id="songname" class="form-control" name="songname" value="@ViewBag.GetSongById[0][1]" required>
+                <div class="form-text">Tên bài hát.</div>
+            </div>
+
+            <!-- Input: Album -->
+            <div class="mb-3">
+                <label for="album_id" class="form-label">Album</label>
+                <select id="album_id" class="form-select" name="album_id" required>
+                    @foreach (var a in ViewBag.listAlbums)
+                    {
+                        if (ViewBag.GetSongById[0].Count > 7 && (ViewBag.GetSongById[0][7]) == (a[1]))
+                        {
+                            <option value="@a[0]" selected>@a[1]</option>
+                        }
+                        else
+                        {
+                            <option value="@a[0]">@a[1]</option>
+                        }
+                    }
+                </select>
+                <div class="form-text">Chọn album của bài hát.</div>
+            </div>
+
+            <!-- Input: Thể loại -->
+            <div class="mb-3">
+                <label for="genre_id" class="form-label">Thể loại</label>
+                <select id="genre_id" class="form-select" name="genre_id" required>
+                    <!-- Các tùy chọn thể loại sẽ được nạp động từ cơ sở dữ liệu -->
+                    @foreach (var a in ViewBag.listGenres)
+                    {
+                        if (ViewBag.GetSongById[0].Count > 8 && ViewBag.GetSongById[0][8] == (a[1]))
+                        {
+                            <option value="@a[0]" selected>@a[1]</option>
+                        }
+                        else
+                        {
+                            <option value="@a[0]">@a[1]</option>
+                        }
+                    }
+                </select>
+                <div class="form-text">Chọn thể loại phù hợp cho bài hát.</div>
+            </div>
+
+            <!-- Input: Lời bài hát -->
+            @{
+                string lyricsValue = "";
+                // Lyrics ở index 10 (11th column)
+                if (ViewBag.GetSongById[0].Count > 10 && ViewBag.GetSongById[0][10] != null)
+                {
+                    lyricsValue = ViewBag.GetSongById[0][10].ToString();
+                }
+            }
+            <div class="mb-3">
+                <label for="lyrics" class="form-label">Lời bài hát</label>
+                <textarea id="lyrics" class="form-control" rows="5" name="lyrics">@lyricsValue</textarea>
+                <div class="form-text">Cập nhật lời bài hát nếu cần. (Database chưa có lyrics sẽ để trống)</div>
+            </div> 
+            @{
+                string inputDate = ViewBag.GetSongById[0][2];
+                string format = "M/dd/yyyy h:mm:ss tt";
+                DateTime parsedDate;
+                string outputDate = "3/11/2002";
+                // Try to parse the date
+                if (DateTime.TryParseExact(inputDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                {
+                    outputDate = parsedDate.ToString("yyyy-MM-dd");
+                    Console.WriteLine(outputDate);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid date format.");
+                }
+            }
+
+            <!-- Input: Ngày phát hành -->
+            <div class="mb-3">
+                <label for="release_date" class="form-label">Ngày phát hành</label>
+                <input type="date" id="release_date" class="form-control" name="release_date" value="@outputDate" required>
+                <div class="form-text">Ngày phát hành của bài hát.</div>
+            </div>
+
+            <!-- Hidden Input: File bài hát cũ -->
+            <input type="hidden" name="file_name" value="@(ViewBag.GetSongById[0].Count > 3 ? ViewBag.GetSongById[0][3]?.ToString() ?? "" : "")" />
+
+            <!-- Input: File bài hát mới -->
+            <div class="mb-3">
+                <label for="file" class="form-label">Tệp bài hát</label>
+                @if (ViewBag.GetSongById[0].Count > 3 && !string.IsNullOrEmpty(ViewBag.GetSongById[0][3]?.ToString()))
+                {
+                    <div class="alert alert-info mb-2">File hiện tại: <strong>@ViewBag.GetSongById[0][3]</strong></div>
+                }
+                <input type="file" id="file" accept=".mp3" class="form-control" name="file">
+                <div class="form-text">Chọn tệp MP3 mới nếu muốn thay đổi.</div>
+            </div>
+
+            <!-- Hidden Input: Ảnh thumbnail cũ -->
+            <input type="hidden" name="thumbnail_image" value="@(ViewBag.GetSongById[0].Count > 4 ? ViewBag.GetSongById[0][4]?.ToString() ?? "" : "")" />
+
+            <!-- Input: Ảnh thumbnail mới -->
+            <div class="mb-3">
+                <label for="thumbnail_image" class="form-label">Ảnh đại diện</label>
+                @{
+                    string thumbnailFile = "";
+                    if (ViewBag.GetSongById[0].Count > 4 && ViewBag.GetSongById[0][4] != null)
+                    {
+                        thumbnailFile = ViewBag.GetSongById[0][4].ToString();
+                    }
+                }
+                @if (!string.IsNullOrEmpty(thumbnailFile))
+                {
+                    <div class="mb-2">
+                        <p class="mb-1"><strong>Ảnh hiện tại:</strong></p>
+                        <img src="/Source/Musics-Image/@Html.Encode(thumbnailFile)" alt="Thumbnail" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                        <p class="mt-2 text-muted"><small>@thumbnailFile</small></p>
+                    </div>
+                }
+                <input type="file" id="thumbnail_image" accept=".jpg, .jpeg, .png" class="form-control" name="thumbnail_image_file">
+                <div class="form-text">Tải ảnh đại diện mới nếu muốn thay đổi.</div>
+            </div>
+
+            <!-- Hiển thị lỗi (nếu có) -->
+            @if (Session["EditSong_Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Session["EditSong_Error"].ToString()
+                </div>
+            }
+
+            <!-- Nút sửa và quay lại -->
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_song_modal">Sửa</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href = '../../Admin/Songs/Index'">Quay lại</button>
+            </div>
+
+            <!-- Modal xác nhận -->
+            <div class="modal fade" id="edit_song_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Xác nhận sửa bài hát</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có chắc chắn muốn sửa bài hát này không?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-success">Đồng ý</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

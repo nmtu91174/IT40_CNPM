@@ -1,0 +1,42 @@
+﻿<div class="card">
+    <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">THÊM THỂ LOẠI</h5>
+        <form action="~/Admin/Genres/Create" method="post">
+            <div class="mb-3">
+                <label for="genreName" class="form-label">Tên Thể Loại</label>
+                <input type="text" class="form-control" aria-describedby="nameHelp" name="genreName" placeholder="Nhập tên thể loại" required>
+                <div id="nameHelp" class="form-text">Trường này sẽ là tên của thể loại.</div>
+            </div>
+            <div class="mb-3">
+                <label for="region" class="form-label">Khu Vực</label>
+                <input type="text" class="form-control" aria-describedby="regionHelp" name="region" placeholder="Nhập khu vực" required>
+                <div id="regionHelp" class="form-text">Khu vực của thể loại.</div>
+            </div>
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.Error
+                </div>
+            }
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_alert">Thêm</button>
+            <button type="button" class="btn btn-default" onclick="window.location.href = '../../Admin/Genres/Index'" style="margin-left: 20px;">Quay lại</button>
+            <div class="modal" id="add_alert" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Thêm thể loại</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có muốn thêm thể loại này?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn me-auto" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Đồng ý</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

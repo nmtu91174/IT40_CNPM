@@ -1,0 +1,56 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="../../assets/img/favicon.png">
+    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="../../assets/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/uf-style.css">
+    <title>Đăng ký</title>
+</head>
+<body>
+    <div class="uf-form-signin">
+        <div class="text-center">
+            <a href="~/Home/Index"><img src="../../assets/img/logo-fb.png" alt="" width="100" height="100"></a>
+            <h1 class="text-white h3">Đăng ký</h1>
+        </div>
+        <form class="mt-4" action="~/Login/RegisterAccount" method="post">
+            <div class="input-group uf-input-group input-group-lg mb-3">
+                <span class="input-group-text fa fa-user"></span>
+                <input type="text" class="form-control" placeholder="Họ và tên" name="fullname" autocomplete="off">
+            </div>
+            <div class="input-group uf-input-group input-group-lg mb-3">
+                <span class="input-group-text fa fa-envelope"></span>
+                <input type="text" class="form-control" placeholder="Tên đăng nhập" name="username" autocomplete="off">
+            </div>
+            <div class="input-group uf-input-group input-group-lg mb-3">
+                <span class="input-group-text fa fa-lock"></span>
+                <input type="password" class="form-control" placeholder="Mật khẩu" name="password" autocomplete="off">
+            </div>
+            <div class="input-group uf-input-group input-group-lg mb-3">
+                <span class="input-group-text fa fa-envelope"></span>
+                <input type="email" class="form-control" placeholder="Email" name="email" autocomplete="off">
+            </div>
+            <div class="input-group uf-input-group input-group-lg mb-3">
+                <span class="input-group-text fa fa-phone"></span>
+                <input type="tel" class="form-control" placeholder="Phone" name="phone" autocomplete="off">
+            </div>
+            <div class="d-grid mb-4">
+                <button type="submit" class="btn uf-btn-primary btn-lg">Đăng ký</button>
+            </div>
+            <div class="mt-4 text-center">
+                <span class="text-white">Đã có tài khoản?</span>
+                <a href="~/Login/Login">Đăng nhập</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- Separate Popper and Bootstrap JS -->
+    <script src="../../assets/js/popper.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,925 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    System.Collections.ArrayList a = ((System.Collections.ArrayList)ViewBag.getInfoUser[0]);
+}
+
+<div class="main-container">
+    <h2>Thông tin người dùng</h2>
+    <div class="info" id="name-container">
+        <label>Họ tên:</label>
+        <span id="name-text">@a[2]</span>
+    </div>
+    <div class="info" id="email-container">
+        <label>Email:</label>
+        <span id="email-text">@a[3]</span>
+    </div>
+    <div class="info" id="phone-container">
+        <label>Số điện thoại:</label>
+        <span id="phone-text">@a[4]</span>
+    </div>
+    <div class="info" id="created-date-container">
+        <label>Ngày tạo:</label>
+        <span id="created-date-text">@a[5]</span>
+    </div>
+    <div class="info" id="updated-date-container">
+        <label>Ngày cập nhật:</label>
+        <span id="updated-date-text">@a[6]</span>
+    </div>
+
+    <div class="button-container">
+        <button id="edit-button" class="button" onclick="toggleEdit()">Thay đổi thông tin cá nhân</button>
+        <button id="change-password-button" class="button" onclick="showChangePasswordModal()">Đổi mật khẩu</button>
+    </div>
+
+    <hr>
+
+    <h2>Playlist của bạn</h2>
+    <div id="playlists-section">
+        <div class="button-container">
+            <button id="add-playlist-button" class="button" onclick="showAddPlaylistModal()">Thêm Playlist</button>
+        </div>
+        <div id="playlists-container">
+            <p id="no-playlist-message" style="display: none;">Bạn chưa có playlist nào.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Audio Player -->
+<div id="floating-player" class="floating-player" style="display: none;">
+    <div class="player-header">
+        <span id="fp-title" class="player-title">Đang chọn bài hát...</span>
+        <button id="close-player-btn" class="close-btn" onclick="closePlayer()">×</button>
+    </div>
+    <div class="player-content" id="player-content-clickable" style="cursor: pointer;">
+        <img id="fp-thumbnail" src="" alt="Album Art" class="player-thumbnail">
+        <div class="player-info">
+            <div id="fp-song-name" class="player-song-name">Tên bài hát</div>
+            <div id="fp-artist-name" class="player-artist-name">Nghệ sỹ</div>
+        </div>
+    </div>
+    <div class="player-progress">
+        <div id="fp-progress" class="progress-bar" style="width: 0%"></div>
+    </div>
+    <div class="player-time">
+        <span id="fp-current-time">0:00</span> / <span id="fp-duration">0:00</span>
+    </div>
+    <div class="player-controls">
+        <button id="prev-btn" class="control-btn" onclick="prevTrack()" title="Bài trước">⏮</button>
+        <button id="play-btn" class="control-btn" onclick="togglePlayPause()" title="Phát">▶</button>
+        <button id="next-btn" class="control-btn" onclick="nextTrack()" title="Bài tiếp">⏭</button>
+    </div>
+    <audio id="fp-audio"></audio>
+</div>
+<div id="addPlaylistModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Thêm Playlist Mới</h2>
+            <span id="closeAddPlaylistModal" style="cursor: pointer; font-size: 20px;">&times;</span>
+        </div>
+        <label>Tên Playlist:</label>
+        <input type="text" id="playlist-name" placeholder="Nhập tên playlist" required>
+        <div class="modal-footer">
+            <button id="savePlaylistButton" class="button">Lưu</button>
+            <button id="cancelAddPlaylistButton" class="button" style="background-color: #dc3545;">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác nhận -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Xác nhận</h2>
+            <span id="closeModal" style="cursor: pointer; font-size: 20px;">&times;</span>
+        </div>
+        <p style="padding-top: 10px; padding-bottom: 50px">Bạn có muốn lưu thông tin đã thay đổi không?</p>
+        <div class="modal-footer">
+            <button id="confirmButton" class="button">Có</button>
+            <button id="cancelButton" class="button" style="background-color: #dc3545;">Không</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Đổi Mật Khẩu -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Đổi Mật Khẩu</h2>
+            <span id="closeChangePasswordModal" style="cursor: pointer; font-size: 20px;">&times;</span>
+        </div>
+        <label>Mật khẩu cũ:</label>
+        <input type="password" id="old-password" placeholder="Nhập mật khẩu cũ" required>
+        <label>Mật khẩu mới:</label>
+        <input type="password" id="new-password" placeholder="Nhập mật khẩu mới" required>
+        <label>Xác nhận mật khẩu mới:</label>
+        <input type="password" id="confirm-new-password" placeholder="Xác nhận mật khẩu mới" required>
+        <div class="modal-footer">
+            <button id="savePasswordButton" class="button">Lưu</button>
+            <button id="cancelChangePasswordButton" class="button" style="background-color: #dc3545;">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Biến toàn cục cho player
+    let isEditing = false;
+    let currentPlaylist = null;
+    let currentTrackIndex = 0;
+    let currentTracks = [];
+    let isPlaying = false;
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function toggleEdit() {
+        isEditing = !isEditing;
+
+        const nameContainer = document.getElementById("name-container");
+        const emailContainer = document.getElementById("email-container");
+        const phoneContainer = document.getElementById("phone-container");
+        const createdDateContainer = document.getElementById("created-date-container");
+        const updatedDateContainer = document.getElementById("updated-date-container");
+
+        if (isEditing) {
+            nameContainer.innerHTML = '<label>Họ tên:</label> <input type="text" id="name-input" value="@a[2]" />';
+            emailContainer.innerHTML = '<label>Email:</label> <input type="email" id="email-input" value="@a[3]" />';
+            phoneContainer.innerHTML = '<label>Số điện thoại:</label> <input type="text" id="phone-input" value="@a[4]" />';
+            createdDateContainer.innerHTML = '<label>Ngày tạo:</label> <span>@a[5]</span>';
+            updatedDateContainer.innerHTML = '<label>Ngày cập nhật:</label> <span>@a[6]</span>';
+            document.getElementById("edit-button").innerText = "Lưu thông tin";
+        } else {
+            const modal = document.getElementById("confirmModal");
+            modal.style.display = "block";
+
+            document.getElementById("confirmButton").onclick = function () {
+                const nameValue = document.getElementById("name-input").value;
+                const emailValue = document.getElementById("email-input").value;
+                const phoneValue = document.getElementById("phone-input").value;
+
+                nameContainer.innerHTML = '<label>Họ tên:</label> <span id="name-text">' + nameValue + '</span>';
+                emailContainer.innerHTML = '<label>Email:</label> <span id="email-text">' + emailValue + '</span>';
+                phoneContainer.innerHTML = '<label>Số điện thoại:</label> <span id="phone-text">' + phoneValue + '</span>';
+                createdDateContainer.innerHTML = '<label>Ngày tạo:</label> <span>@a[5]</span>';
+                updatedDateContainer.innerHTML = '<label>Ngày cập nhật:</label> <span>@a[6]</span>';
+
+                const url = '../../User/EditUser?id=' + '@a[0]' +
+                    '&fullname=' + encodeURIComponent(nameValue) +
+                    '&email=' + encodeURIComponent(emailValue) +
+                    '&phone=' + encodeURIComponent(phoneValue);
+                window.location.href = url;
+
+                modal.style.display = "none";
+                document.getElementById("edit-button").innerText = "Thay đổi thông tin cá nhân";
+            };
+
+            document.getElementById("cancelButton").onclick = function () {
+                modal.style.display = "none";
+                isEditing = true;
+            };
+
+            document.getElementById("closeModal").onclick = function () {
+                modal.style.display = "none";
+                isEditing = true;
+            };
+        }
+    }
+
+    function showChangePasswordModal() {
+        const modal = document.getElementById("changePasswordModal");
+        modal.style.display = "block";
+
+        document.getElementById("closeChangePasswordModal").onclick = function () {
+            modal.style.display = "none";
+        };
+
+        document.getElementById("cancelChangePasswordButton").onclick = function () {
+            modal.style.display = "none";
+        };
+
+        document.getElementById("savePasswordButton").onclick = function () {
+            const oldPassword = document.getElementById("old-password").value;
+            const newPassword = document.getElementById("new-password").value;
+            const confirmNewPassword = document.getElementById("confirm-new-password").value;
+
+            if (oldPassword != @Session["Password"].ToString()) {
+                alert("Mật khẩu cũ không đúng.");
+                return;
+            }
+
+            if (newPassword === confirmNewPassword) {
+                const url = '../../User/ChangePassword?id=' + '@a[0]' + '&newPass=' + encodeURIComponent(newPassword);
+                window.location.href = url;
+            } else {
+                alert("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+            }
+        };
+    }
+
+    window.onclick = function (event) {
+        const confirmModal = document.getElementById("confirmModal");
+        const changePasswordModal = document.getElementById("changePasswordModal");
+        if (event.target === confirmModal) {
+            confirmModal.style.display = "none";
+            isEditing = true;
+        }
+        if (event.target === changePasswordModal) {
+            changePasswordModal.style.display = "none";
+        }
+    }
+
+    // ===== FLOATING PLAYER FUNCTIONS =====
+    function playPlaylist(playlistId) {
+        currentPlaylist = playlistId;
+        currentTrackIndex = 0;
+        fetch('/Playlists/GetSongsInPlaylist?playlistId=' + playlistId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.songs && data.songs.length > 0) {
+                    currentTracks = data.songs;
+                    document.getElementById('floating-player').style.display = 'block';
+                    loadTrack(0);
+                    playAudio();
+                } else {
+                    alert('Playlist trống hoặc không thể tải bài hát');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi khi tải danh sách bài hát');
+            });
+    }
+
+    function loadTrack(index) {
+        if (index < 0 || index >= currentTracks.length) return;
+        currentTrackIndex = index;
+        const track = currentTracks[index];
+        
+        const fpTitle = document.getElementById('fp-title');
+        const fpSongName = document.getElementById('fp-song-name');
+        const fpArtistName = document.getElementById('fp-artist-name');
+        const fpThumbnail = document.getElementById('fp-thumbnail');
+        const audioEl = document.getElementById('fp-audio');
+
+        fpTitle.textContent = escapeHtml(track.SongName || 'Không xác định');
+        fpSongName.textContent = escapeHtml(track.SongName || 'Không xác định');
+        fpArtistName.textContent = escapeHtml(track.ArtistName || 'Nghệ sỹ không xác định');
+        
+        if (track.ThumbnailImage) {
+            fpThumbnail.src = '/Source/Musics-Image/' + encodeURIComponent(track.ThumbnailImage);
+        } else {
+            fpThumbnail.src = '/assets/images/default-album.png';
+        }
+
+        audioEl.src = '/Source/mp3/' + encodeURIComponent(track.FileName);
+    }
+
+    function playAudio() {
+        const audioEl = document.getElementById('fp-audio');
+        audioEl.play();
+        document.getElementById('play-btn').textContent = '⏸';
+        isPlaying = true;
+    }
+
+    function pauseAudio() {
+        const audioEl = document.getElementById('fp-audio');
+        audioEl.pause();
+        document.getElementById('play-btn').textContent = '▶';
+        isPlaying = false;
+    }
+
+    function togglePlayPause() {
+        if (isPlaying) {
+            pauseAudio();
+        } else {
+            playAudio();
+        }
+    }
+
+    function nextTrack() {
+        if (currentTrackIndex < currentTracks.length - 1) {
+            loadTrack(currentTrackIndex + 1);
+            playAudio();
+        }
+    }
+
+    function prevTrack() {
+        if (currentTrackIndex > 0) {
+            loadTrack(currentTrackIndex - 1);
+            playAudio();
+        }
+    }
+
+    function closePlayer() {
+        const audioEl = document.getElementById('fp-audio');
+        audioEl.pause();
+        document.getElementById('floating-player').style.display = 'none';
+        isPlaying = false;
+    }
+
+    function openCurrentSongPage() {
+        if (currentTracks.length > 0 && currentTrackIndex >= 0 && currentTrackIndex < currentTracks.length) {
+            const songId = currentTracks[currentTrackIndex].SongId;
+            if (songId) {
+                window.location.href = '/PlayMusic/Index?id=' + songId;
+            }
+        }
+    }
+
+    // Audio event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const audioEl = document.getElementById('fp-audio');
+        const playerContent = document.getElementById('player-content-clickable');
+        
+        // Click to open song page
+        if (playerContent) {
+            playerContent.addEventListener('click', function() {
+                openCurrentSongPage();
+            });
+        }
+        
+        audioEl.addEventListener('timeupdate', function() {
+            if (audioEl.duration) {
+                const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                document.getElementById('fp-progress').style.width = progress + '%';
+                
+                const currentMin = Math.floor(audioEl.currentTime / 60);
+                const currentSec = Math.floor(audioEl.currentTime % 60);
+                const durationMin = Math.floor(audioEl.duration / 60);
+                const durationSec = Math.floor(audioEl.duration % 60);
+                
+                document.getElementById('fp-current-time').textContent = 
+                    currentMin + ':' + (currentSec < 10 ? '0' : '') + currentSec;
+                document.getElementById('fp-duration').textContent = 
+                    durationMin + ':' + (durationSec < 10 ? '0' : '') + durationSec;
+            }
+        });
+
+        audioEl.addEventListener('ended', function() {
+            if (currentTrackIndex < currentTracks.length - 1) {
+                nextTrack();
+            }
+        });
+    });
+
+    // ===== PLAYLIST MANAGEMENT FUNCTIONS =====
+    function showAddPlaylistModal() {
+        const modal = document.getElementById("addPlaylistModal");
+        modal.style.display = "block";
+
+        document.getElementById("closeAddPlaylistModal").onclick = function () {
+            modal.style.display = "none";
+        };
+
+        document.getElementById("cancelAddPlaylistButton").onclick = function () {
+            modal.style.display = "none";
+        };
+
+        document.getElementById("savePlaylistButton").onclick = function () {
+            const playlistName = document.getElementById("playlist-name").value;
+            if (!playlistName.trim()) {
+                alert("Tên playlist không được để trống!");
+                return;
+            }
+
+            fetch(`/Playlists/CreateNewPlaylist`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: playlistName })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        };
+    }
+
+    function deletePlaylist(playlistId) {
+        if (confirm("Bạn có chắc chắn muốn xóa playlist này?")) {
+            fetch(`/Playlists/DeletePlaylist`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ playlistId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+    }
+
+    function removeSongFromPlaylist(playlistId, songId) {
+        if (confirm("Bạn có chắc chắn muốn xóa bài hát này khỏi playlist?")) {
+            fetch(`/Playlists/RemoveSong`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ playlistId, songId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+    }
+
+    function loadPlaylists() {
+        $.ajax({
+            url: '/Playlists/GetUserPlaylists?songId=1',
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    renderPlaylists(response.playlists);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Lỗi khi tải danh sách playlists.");
+            }
+        });
+    }
+
+    function renderPlaylists(playlists) {
+        const container = $('#playlists-container');
+        container.empty();
+
+        if (playlists.length === 0) {
+            $('#no-playlist-message').show();
+            return;
+        }
+
+        $('#no-playlist-message').hide();
+        playlists.forEach(playlist => {
+            const playlistElement = $(`
+            <div class="playlist-card">
+                <div class="playlist-header">
+                    <h3>${escapeHtml(playlist.name)}</h3>
+                    <div class="playlist-actions">
+                        <button class="button btn-play" onclick="playPlaylist(${playlist.id})" title="Nghe">▶ Nghe</button>
+                        <button class="button btn-delete" onclick="deletePlaylist(${playlist.id})" title="Xóa">🗑 Xóa</button>
+                    </div>
+                </div>
+                <ul id="songs-in-playlist-${playlist.id}" class="songs-list">
+                    <li>Đang tải...</li>
+                </ul>
+            </div>
+        `);
+
+            container.append(playlistElement);
+            loadSongsInPlaylist(playlist.id);
+        });
+    }
+
+    function loadSongsInPlaylist(playlistId) {
+        $.ajax({
+            url: '/Playlists/GetSongsInPlaylist',
+            type: 'GET',
+            data: { playlistId: playlistId },
+            success: function (response) {
+                if (response.success) {
+                    renderSongs(playlistId, response.songs);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Lỗi khi tải bài hát trong playlist.");
+            }
+        });
+    }
+
+    function renderSongs(playlistId, songs) {
+        const songList = $(`#songs-in-playlist-${playlistId}`);
+        songList.empty();
+
+        if (songs.length === 0) {
+            songList.append('<li class="empty-message">Playlist chưa có bài hát nào.</li>');
+            return;
+        }
+
+        songs.forEach((song, index) => {
+            const songElement = $(`
+            <li class="song-item">
+                <span class="song-number">${index + 1}.</span>
+                <span class="song-name">${escapeHtml(song.SongName)}</span>
+                <span class="song-artist">${escapeHtml(song.ArtistName || 'Không xác định')}</span>
+                <button class="btn-remove" onclick="removeSongFromPlaylist(${playlistId}, ${song.SongId})" title="Xóa">✕</button>
+            </li>
+        `);
+            songList.append(songElement);
+        });
+    }
+
+    $(document).ready(function () {
+        loadPlaylists();
+    });
+</script>
+
+<style>
+    /* ===== FLOATING PLAYER STYLES ===== */
+    .floating-player {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 380px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        color: white;
+        font-family: 'Arial', sans-serif;
+        z-index: 1000;
+        overflow: hidden;
+    }
+
+    .player-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .player-title {
+        font-weight: bold;
+        font-size: 16px;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 10px;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+        color: #ffeb3b;
+    }
+
+    .player-content {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        transition: background 0.2s;
+    }
+
+    .player-content:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+    }
+
+    .player-thumbnail {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+    }
+
+    .player-content:hover .player-thumbnail {
+        transform: scale(1.05);
+    }
+
+    .player-info {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .player-song-name {
+        font-weight: bold;
+        font-size: 18px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-bottom: 6px;
+    }
+
+    .player-artist-name {
+        font-size: 14px;
+        opacity: 0.95;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .player-progress {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.25);
+        cursor: pointer;
+        margin: 12px 0 0 0;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #ffeb3b, #ffc107);
+        transition: width 0.1s linear;
+        box-shadow: 0 0 8px rgba(255, 235, 59, 0.5);
+    }
+
+    .player-time {
+        font-size: 13px;
+        padding: 8px 16px;
+        text-align: center;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .player-controls {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        padding: 16px;
+        border-top: 2px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .control-btn {
+        background: rgba(255, 255, 255, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-weight: bold;
+    }
+
+    .control-btn:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: scale(1.12);
+        box-shadow: 0 4px 12px rgba(255, 235, 59, 0.3);
+    }
+
+    .control-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* ===== PLAYLIST CARD STYLES ===== */
+    .playlist-card {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .playlist-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .playlist-header h3 {
+        margin: 0;
+        color: #333;
+        flex: 1;
+    }
+
+    .playlist-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-play {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 6px 12px;
+        font-size: 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-play:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        padding: 6px 12px;
+        font-size: 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: #a71d2a;
+        transform: scale(1.05);
+    }
+
+    .songs-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .song-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 13px;
+        color: #333;
+    }
+
+    .song-item:last-child {
+        border-bottom: none;
+    }
+
+    .song-number {
+        font-weight: bold;
+        color: #667eea;
+        min-width: 25px;
+    }
+
+    .song-name {
+        flex: 1;
+        margin: 0 8px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .song-artist {
+        color: #666;
+        font-size: 12px;
+        margin: 0 8px;
+        flex: 0.8;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn-remove {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+    .btn-remove:hover {
+        background: #c0392b;
+    }
+
+    .empty-message {
+        font-style: italic;
+        color: #999;
+        text-align: center;
+        padding: 15px;
+    }
+
+    /* ===== EXISTING STYLES ===== */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0px;
+        background-color: #f4f4f4;
+    }
+
+    .main-container {
+        max-width: 600px;
+        margin: auto;
+        margin-top: 50px;
+        margin-bottom: 100px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .info {
+        margin: 10px 0;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .info:last-child {
+        border-bottom: none;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        margin: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 500;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+    }
+
+    .modal-footer {
+        text-align: right;
+    }
+</style>

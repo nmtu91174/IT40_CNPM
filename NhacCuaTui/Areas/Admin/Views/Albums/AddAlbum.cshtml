@@ -1,0 +1,135 @@
+﻿@using System.Collections
+@{
+    ViewBag.Title = "Thêm album";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var artists = ViewBag.Artists as ArrayList;
+    var songs = ViewBag.Songs as ArrayList;
+}
+
+<h2>Thêm Album</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@using (Html.BeginForm("ThemAlbum", "Albums", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="form-group">
+        <label>Tên album</label>
+        <input type="text" name="albumname" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Nghệ sĩ</label>
+        <select name="artist_id" class="form-control" required>
+            <option value="">-- Chọn nghệ sĩ --</option>
+            @if (artists != null)
+            {
+                foreach (ArrayList row in artists)
+                {
+                    // row[0] = artist_id, row[1] = artist_name
+                    <option value="@row[0]">@row[1]</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Ngày phát hành</label>
+        <input type="date" name="release_date" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Ảnh bìa (cover)</label>
+        <input type="file" name="cover_image" class="form-control" />
+        <small>Nếu bỏ trống sẽ dùng ảnh mặc định: default-cover.jpg</small>
+    </div>
+
+    <div class="form-group">
+        <label>Bài hát thuộc album</label>
+        <select name="existing_songs" multiple="multiple" size="10" class="form-control">
+            @if (songs != null)
+            {
+                foreach (ArrayList row in songs)
+                {
+                    // row[0] = song_id, row[1] = song_name
+                    <option value="@row[0]">@row[1]</option>
+                }
+            }
+        </select>
+        <small>Giữ Ctrl (hoặc Cmd trên Mac) để chọn nhiều bài.</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu album</button>
+    <a href="@Url.Action("Index", "Albums", new { area = "Admin" })" class="btn btn-default">Quay lại</a>
+}
+
+<script>
+    $(document).ready(function () {
+        $('#existing_songs').select2({
+            placeholder: "Tìm kiếm bài hát...",
+            allowClear: true
+        });
+    });
+    // Hiển thị modal chọn bài hát hiện có
+    function showExistingSongs() {
+        const modal = new bootstrap.Modal(document.getElementById('existingSongsModal'));
+        modal.show();
+    }
+
+    // Hiển thị modal thêm bài hát mới
+    function showNewSongForm() {
+        const modal = new bootstrap.Modal(document.getElementById('newSongModal'));
+        modal.show();
+    }
+
+    // Thêm bài hát hiện có vào danh sách (tags)
+    function addExistingSongs() {
+        const select = document.getElementById('existing_songs');
+        const container = document.getElementById('selected_songs_container');
+        Array.from(select.selectedOptions).forEach(option => {
+            const tag = createTag(option.value, option.textContent, true);
+            container.appendChild(tag);
+        });
+        bootstrap.Modal.getInstance(document.getElementById('existingSongsModal')).hide();
+    }
+
+    // Thêm bài hát mới vào danh sách (tags)
+    function addNewSong() {
+        const name = document.getElementById('new_song_name').value;
+        const genre = document.getElementById('new_song_genre').value;
+        const releaseDate = document.getElementById('new_song_release_date').value;
+        if (!name || !genre || !releaseDate) {
+            alert("Vui lòng nhập đầy đủ thông tin bài hát!");
+            return;
+        }
+        const container = document.getElementById('selected_songs_container');
+        const tag = createTag(null, name, false);
+        container.appendChild(tag);
+        bootstrap.Modal.getInstance(document.getElementById('newSongModal')).hide();
+    }
+
+    // Tạo một tag bài hát
+    function createTag(value, text, isExisting) {
+        const tag = document.createElement('div');
+        tag.className = 'badge bg-primary text-white me-2 mb-2';
+        tag.textContent = text;
+        if (isExisting) {
+            tag.innerHTML += `<input type="hidden" name="existing_songs[]" value="${value}">`;
+        } else {
+            tag.innerHTML += `<input type="hidden" name="new_songs[]" value="${text}">`;
+        }
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close btn-close-white ms-2';
+        closeBtn.onclick = () => tag.remove();
+        tag.appendChild(closeBtn);
+        return tag;
+    }
+</script>

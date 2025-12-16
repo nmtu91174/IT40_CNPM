@@ -1,0 +1,102 @@
+﻿<div class="card">
+    <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">THÊM BÀI HÁT</h5>
+        <form action="~/Admin/Songs/ThemBaiHat" method="post" enctype="multipart/form-data">
+            <!-- Input: Tên bài hát -->
+            <div class="mb-3">
+                <label for="songname" class="form-label">Tên bài hát</label>
+                <input type="text" id="songname" class="form-control" name="songname" placeholder="Nhập tên bài hát" required>
+                <div class="form-text">Tên bài hát là bắt buộc.</div>
+            </div>
+
+            <!-- Input: Album -->
+            <div class="mb-3">
+                <label for="album_id" class="form-label">Album</label>
+                <select id="album_id" class="form-select" name="album_id" required>
+                    <option value="">Chọn album</option>
+                    <!-- Các tùy chọn album sẽ được nạp động từ cơ sở dữ liệu -->
+                    @foreach (var a in ViewBag.listAlbums)
+                    {
+                        <option value="@a[0]">@a[1]</option>
+                    }
+                </select>
+                <div class="form-text">Chọn album của bài hát.</div>
+            </div>
+
+            <!-- Input: Thể loại -->
+            <div class="mb-3">
+                <label for="genre_id" class="form-label">Thể loại</label>
+                <select id="genre_id" class="form-select" name="genre_id" required>
+                    <option value="">Chọn thể loại</option>
+                    <!-- Các tùy chọn thể loại sẽ được nạp động từ cơ sở dữ liệu -->
+                    @foreach (var a in ViewBag.listGenres)
+                    {
+                        <option value="@a[0]">@a[1]</option>
+                    }
+                </select>
+                <div class="form-text">Chọn thể loại phù hợp cho bài hát.</div>
+            </div>
+
+            <!-- Input: Lời bài hát -->
+            <div class="mb-3">
+                <label for="lyrics" class="form-label">Lời bài hát</label>
+                <textarea id="lyrics" class="form-control" rows="5" name="lyrics" placeholder="Nhập lời bài hát"></textarea>
+                <div class="form-text">Lời bài hát không bắt buộc nhưng khuyến nghị nhập.</div>
+            </div>
+
+            <!-- Input: Ngày phát hành -->
+            <div class="mb-3">
+                <label for="release_date" class="form-label">Ngày phát hành</label>
+                <input type="date" id="release_date" class="form-control" name="release_date" required>
+                <div class="form-text">Chọn ngày phát hành của bài hát.</div>
+            </div>
+
+            <!-- Input: File bài hát -->
+            <div class="mb-3">
+                <label for="file" class="form-label">Tệp bài hát</label>
+                <input type="file" id="file" accept=".mp3" class="form-control" name="file" required>
+                <div class="form-text">Chọn tệp MP3 cho bài hát (bắt buộc).</div>
+            </div>
+
+            <!-- Input: Ảnh thumbnail -->
+            <div class="mb-3">
+                <label for="thumbnail_image" class="form-label">Ảnh đại diện</label>
+                <input type="file" id="thumbnail_image" accept=".jpg, .jpeg, .png" class="form-control" name="thumbnail_image">
+                <div class="form-text">Tải lên ảnh đại diện cho bài hát (không bắt buộc).</div>
+            </div>
+
+            <!-- Hiển thị lỗi (nếu có) -->
+            @if (Session["AddSong_Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Session["AddSong_Error"].ToString()
+                </div>
+            }
+
+            <!-- Nút gửi -->
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_song_modal">Thêm</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href = '../../Admin/Songs/Index'">Quay lại</button>
+            </div>
+
+            <!-- Modal xác nhận -->
+            <div class="modal fade" id="add_song_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Xác nhận thêm bài hát</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có chắc chắn muốn thêm bài hát này không?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-success">Đồng ý</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

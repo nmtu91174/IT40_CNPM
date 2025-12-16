@@ -1,0 +1,1037 @@
+﻿@using Newtonsoft.Json;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta https-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhạc của tui</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.png">
+    <link rel="stylesheet" href="~/Content/Home.css">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css"
+          integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+    <style>
+        .suggestions-list {
+            border: 1px solid #ccc;
+            background: white;
+            max-height: 300px;
+            overflow-y: auto;
+            display: block;
+            position: absolute;
+            z-index: 1000;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+            .suggestion-item:hover {
+                background-color: #f0f0f0;
+            }
+        .messenger-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #0078FF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            color: white;
+        }
+        .notification-dot {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 15px;
+            height: 15px;
+            background-color: orangered;
+            border-radius: 50%;
+        }
+        .chat-container {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 40px;
+            width: 400px;
+            height: 514px;
+            background-color: #f1f1f1;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .chat-header {
+            background-color: #0078FF;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .send-button {
+            padding: 10px 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .send-button:hover {
+                background-color: #0056b3;
+            }
+
+        #chatMessages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-message {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 15px;
+            display: inline-block;
+            clear: both;
+            position: relative;
+        }
+
+        .me {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+            margin-left: 50px;
+        }
+
+        .other {
+            background-color: #f8d7da;
+            align-self: flex-start;
+            margin-right: 50px;
+        }
+
+        .system-message {
+            padding: 2px;
+            font-size: smaller;
+            text-align: center;
+            margin: 10px auto;
+            width: fit-content;
+            color: gray;
+        }
+
+        .timestamp {
+            font-size: smaller;
+            color: gray;
+            position: absolute;
+            bottom: -11px;
+            right: 50%;
+            transform: translateX(50%);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .system-text {
+            font-size: smaller;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    @*-------------------Header---------------------------*@
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="logo-page">
+                            <a href="../../Home/Index"><img src="../../Source/logo.jpg" alt="" style="border-radius: 10px;"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="search-form form-group m-0">
+                            <form action="~/Home/Search" method="get">
+                                <input type="text" id="search-input" class="form-control" placeholder="Nhập tên bài hát, video, ca sĩ bạn cần tìm" name="searchInput" autocomplete="off">
+                                <div id="suggestions-list" class="suggestions-list" style="position: absolute; z-index: 1000;"></div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex justify-content-end align-items-center">
+                        <div class="right-header-top pt-2">
+                            <button class="auth-toggle d-md-none" onclick="toggleAuthMenu()">☰</button>
+                            <div id="auth-menu" class="auth-menu d-none d-md-flex align-items-center" style="display: none;">
+                                @if (Session["userId"] != null)
+                                {
+                                    <div class="signup px-2">
+                                        @if (Session["Role"].ToString().Equals("Admin"))
+                                        {<a href="~/Admin/Dashboard/Index"><button>Quản lý</button></a> }
+                                        else
+                                        { <a href="~/User/Index"><button>Cá nhân</button></a>}
+                                    </div>
+                                    <span class="px-1">/</span>
+                                    <div class="signup px-2"><a href="~/Login/LogOut"><button>Đăng xuất</button></a></div>
+                                }
+                                else
+                                {
+                                    <div class="login px-2"><button type="button" data-toggle="modal" data-target="#loginModal">Đăng nhập</button></div>
+                                    <span class="px-1">/</span>
+                                    <div class="signup px-2"><button type="button" data-toggle="modal" data-target="#registerModal">Đăng ký</button></div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------Navbar------------------->
+        <div class="navbar">
+            <ul class="nav-list m-0">
+                <li class="nav-item">
+                    <a href="../../Home/Index">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="">Bài Hát</a>
+                    <div class="sub-nav">
+                        <ul class="sub-nav-list">
+                            <li class="sub-nav-item">
+                                <a href="">Việt Nam</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc trẻ">Nhạc Trẻ</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Trữ Tình">Trữ Tình</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Remix">Remix</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Rap">Rap</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Trịnh">Nhạc Trịnh</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Rock">Nhạc Rock</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Cách Mạng">Cách Mạng</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Âu Mỹ</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Pop">Pop</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Rock">Rock</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Country">Country</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Latin">Latin</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=HipHop/Rap">HipHop/Rap</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Blues/Jazz">Blues/Jazz</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=EDM">EDM</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Châu Á</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Trung">Nhạc Trung</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Hàn">Nhạc Hàn</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Nhật">Nhạc Nhật</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Thái">Nhạc Thái</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Khác</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Thiếu Nhi">Thiếu Nhi</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Beat">Beat</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Không Lời">Không Lời</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Phim">Nhạc Phim</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Thể Loại Khác">Thể Loại Khác</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="/Playlists/Index">Playlist</a>
+                    <div class="sub-nav">
+                        <ul class="sub-nav-list">
+                            <li class="sub-nav-item">
+                                <a href="">Việt Nam</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc trẻ">Nhạc Trẻ</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Trữ Tình">Trữ Tình</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Remix">Remix</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Rap">Rap</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Trịnh">Nhạc Trịnh</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Rock">Nhạc Rock</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Cách Mạng">Cách Mạng</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Âu Mỹ</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Pop">Pop</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Rock">Rock</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Country">Country</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Latin">Latin</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=HipHop/Rap">HipHop/Rap</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Blues/Jazz">Blues/Jazz</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=EDM">EDM</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Châu Á</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Trung">Nhạc Trung</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Hàn">Nhạc Hàn</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Nhật">Nhạc Nhật</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Thái">Nhạc Thái</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Khác</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Thiếu Nhi">Thiếu Nhi</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Beat">Beat</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Không Lời">Không Lời</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Nhạc Phim">Nhạc Phim</a></li>
+                                    <li class="sub2-nav-item"><a href="../../Home/TheLoai?Genres=Thể Loại Khác">Thể Loại Khác</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="/Leaderboard/Index">Xếp Hạng</a>
+                    <div class="sub-nav">
+                        <ul class="sub-nav-list bxh-list">
+                            <li class="sub-nav-item">
+                                <a href="">Việt Nam</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="">BXH Ngày</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tuần</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tháng</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Năm</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Âu Mỹ</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="">BXH Ngày</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tuần</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tháng</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Năm</a></li>
+                                </ul>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a href="">Hàn Quốc</a>
+                                <ul class="sub2-nav-list">
+                                    <li class="sub2-nav-item"><a href="">BXH Ngày</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tuần</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Tháng</a></li>
+                                    <li class="sub2-nav-item"><a href="">BXH Năm</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="/Album/Index">Album</a></li>
+                <li class="nav-item"><a href="/Artist/Index">Nghệ Sỹ</a></li>
+                <li class="nav-item">
+                    <button class="btn-upload" id="uploadBtn" type="button" data-toggle="modal" data-target="#uploadModal">
+                        <i class="fas fa-cloud-upload-alt pr-1"></i>
+                        <span>Upload</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <!------------------END-Navbar------------------->
+    </header>
+    <!-------------------END-Header----------------------->
+    <!---------------Body-------------------->
+    <main>
+        @RenderBody()
+    </main>
+    <!-- Messenger -->
+    <div class="messenger-icon" id="messengerIcon" onclick="toggleChat(event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-messenger"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1" /><path d="M8 13l3 -2l2 2l3 -2" /></svg>
+        <span class="notification-dot" style="display: none;" id="notificationDot"></span>
+    </div>
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">Chat</div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div id="inputArea" class="input-area">
+            <input type="text" id="messageInput" placeholder="Type your message here...">
+            <button class="send-button" id="sendButton">Gửi</button>
+        </div>
+    </div>
+    <!---------------END-Body-------------------->
+    <!---------------------Footer--------------------->
+    <footer>
+        <div class="main-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+                        <div class="footer-list">
+                            <span class="footer-title">HỖ TRỢ</span>
+                            <ul>
+                                <li><a href="">Trợ giúp</a></li>
+                                <li><a href="">Sơ đồ</a></li>
+                                <li><a href="">NCCI</a></li>
+                                <li><a href="">Chính sách bảo mật</a></li>
+                                <li><a href="">Chính sách SHIT</a></li>
+                                <li><a href="">Thỏa thuận sử dụng</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+                        <div class="footer-list">
+                            <span class="footer-title">SẢN PHẨM KHÁC</span>
+                            <ul>
+                                <li><a href="">Mobile App</a></li>
+                                <li><a href="">Mobile Web</a></li>
+                                <li><a href="">Smart TV</a></li>
+                                <li><a href="">Dịch vụ 3G</a></li>
+                                <li><a href="">CSN Corp</a></li>
+                                <li><a href="">Tuyển dụng</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="ccol-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <div class="footer-list">
+                            <span class="footer-title">TOP TỪ KHÓA</span>
+                            <div class="hot-key-word">
+                                <a href="">Hãy Trao Cho Anh, </a>
+                                <a href="">Đau Đầu - Isaac, </a>
+                                <a href="">Cabinet - Hyomin, </a>
+                                <a href="">JustaTee, </a>
+                                <a href="">Hai Triệu Năm</a>
+                            </div>
+                            <span class="footer-title contact">KẾT NỐI VỚI CHÚNG TÔI</span>
+                            <div class="social">
+                                <a class="socal-icon" href=""><i class="fab fa-facebook-square"></i></a><a class="socal-icon" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="more-footer">
+                    <div class="row">
+                        <div class="col-6 offset-2 pb-3">
+                            <span class="footer-title">CÔNG TY CỔ PHẦN CSN</span>
+                            <p>Chủ sở hữu website: MR. ABC</p>
+                            <p>Giấy phép MXH số 337/GP-BTTTT do Bộ TT&TT cấp ngày 22/06/2026</p>
+                            <p>Giấy Chứng nhận Đăng ký Kinh doanh do Sở kế hoạch và Đầu tư thành phố HCM cấp ngày 01/03/2010.</p>
+                        </div>
+                        <div class="col-3 certi-icon">
+                            <img src="https://images.dmca.com/Badges/dmca_protected_31_120.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!---------------------END-Footer--------------------->
+    <!--------------Search_Alert----------------->
+    <div class="modal fade" id="searchAlert" tabindex="-1" aria-labelledby="searchAlertLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchAlertLabel">Thông báo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Vui lòng nhập thông tin tìm kiếm.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--------------END_Search_Alert----------------->
+    <!-- Modal Đăng Nhập -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Đăng Nhập</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginUsername">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control" id="loginUsername" name="username" autocomplete="off" placeholder="Nhập tên đăng nhập" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Mật Khẩu</label>
+                            <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Nhập mật khẩu" required>
+                        </div>
+                        <div id="errorMessage" style="color: red; display: none;"></div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Modal Đăng Nhập -->
+    <!-------Modal Đăng ký------>
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Đăng Ký Tài Khoản</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="regUsername">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control" id="regUsername" name="username" autocomplete="off" placeholder="Nhập tên đăng nhập" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Mật Khẩu</label>
+                            <input type="password" class="form-control" id="regPassword" name="password" placeholder="Nhập mật khẩu" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" class="form-control" id="regEmail" name="email" autocomplete="off" placeholder="Nhập email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPhone">Số Điện Thoại</label>
+                            <input type="text" class="form-control" id="regPhone" name="phone" autocomplete="off" placeholder="Nhập số điện thoại" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regFullname">Họ Tên</label>
+                            <input type="text" class="form-control" id="regFullname" name="fullname" autocomplete="off" placeholder="Nhập họ tên" required>
+                        </div>
+                        <div id="errorMessage" style="color: red; display: none;"></div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Đăng Ký</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END- modal đăng ký-->
+    <!-- Popup Modal Playlist -->
+    <div class="modal fade" id="playlistModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h6 id="song-title">Thêm bài hát vào playlist</h6>
+
+                    <!-- Danh sách Playlist -->
+                    <ul class="list-group" id="user-playlists">
+                        <!-- Các playlist sẽ được thêm ở đây -->
+                    </ul>
+
+                    <!-- Thêm Playlist Mới -->
+                    <hr>
+                    <h6>Tạo Playlist Mới</h6>
+                    <div class="input-group mb-3">
+                        <input type="text" id="new-playlist-name" class="form-control" placeholder="Nhập tên playlist" />
+                        <button class="btn btn-primary" type="button" onclick="createNewPlaylist()">Tạo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Upload -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Tải lên bài hát</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="songName">Tên bài hát <span style="color: red;">*</span></label>
+                            <input type="text" class="form-control" id="songName" name="songName" placeholder="Nhập tên bài hát" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="artistName">Tên nghệ sĩ <span style="color: red;">*</span></label>
+                            <input type="text" class="form-control" id="artistName" name="artistName" placeholder="Nhập tên nghệ sĩ" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="genre">Thể loại <span style="color: red;">*</span></label>
+                            <select class="form-control" id="genre" name="genre" required>
+                                <option value="">-- Chọn thể loại --</option>
+                                <option value="Nhạc trẻ">Nhạc Trẻ</option>
+                                <option value="Trữ Tình">Trữ Tình</option>
+                                <option value="Remix">Remix</option>
+                                <option value="Rap">Rap</option>
+                                <option value="Pop">Pop</option>
+                                <option value="Rock">Rock</option>
+                                <option value="Nhạc Hàn">Nhạc Hàn</option>
+                                <option value="Nhạc Trung">Nhạc Trung</option>
+                                <option value="EDM">EDM</option>
+                                <option value="Thể Loại Khác">Thể Loại Khác</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Mô tả</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Nhập mô tả bài hát (tùy chọn)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="songFile">Chọn file nhạc (.mp3) <span style="color: red;">*</span></label>
+                            <input type="file" class="form-control-file" id="songFile" name="songFile" accept=".mp3,audio/mpeg" required>
+                            <small class="form-text text-muted">Kích thước tối đa: 50MB. Định dạng: MP3</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="thumbnailFile">Chọn ảnh bìa (tùy chọn)</label>
+                            <input type="file" class="form-control-file" id="thumbnailFile" name="thumbnailFile" accept="image/*">
+                            <small class="form-text text-muted">Định dạng: JPG, PNG. Kích thước tối đa: 5MB</small>
+                        </div>
+                        <div id="uploadError" style="color: red; display: none; margin-bottom: 10px;"></div>
+                        <div id="uploadProgress" style="display: none; margin-bottom: 10px;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="progressText">Đang tải lên: 0%</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="submitUploadBtn">Tải lên</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        let songs = @Html.Raw(JsonConvert.SerializeObject(ViewBag.GetAllSong ?? new System.Collections.ArrayList()));
+        $(document).ready(function () {
+            $('.main-carousel').owlCarousel({
+                loop: true,
+                margin: 0,
+                nav: false,
+                autoplay: false,
+                autoplayTimeout: 5000,
+                autoplayHoverPause: true,
+                responsiveClass: true,
+                responsive: {
+                    0: {
+                        items: 1,
+                        slideBy: 1
+                    },
+                    600: {
+                        items: 3,
+                        slideBy: 3
+                    },
+                    1000: {
+                        items: 4,
+                        slideBy: 4,
+                        loop: true
+                    }
+                }
+            });
+            $('.topic-carousel').owlCarousel({
+                loop: true,
+                margin: 10,
+                nav: false,
+                autoplay: false,
+                autoplayTimeout: 5000,
+                stagePadding: 100,
+                autoplayHoverPause: true,
+                responsiveClass: true,
+                responsive: {
+                    0: {
+                        items: 1,
+                        slideBy: 1
+                    },
+                    700: {
+                        items: 2,
+                        slideBy: 2
+                    },
+                    1000: {
+                        items: 3,
+                        slideBy: 3,
+                        loop: true
+                    }
+                }
+            });
+            $('#registerForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '../../Login/RegisterAccount',
+                    data: $('#registerForm').serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '../../Home/Index';
+                        } else {
+                            $('#errorMessage').text(response.message).show();
+                        }
+                    },
+                    error: function () {
+                        $('#errorMessage').text("Đã xảy ra lỗi. Vui lòng thử lại.").show();
+                    }
+                });
+            });
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '../../Login/LoginAccount',
+                    data: $('#loginForm').serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            $('#errorMessage').text(response.message).show();
+                        }
+                    },
+                    error: function () {
+                        $('#errorMessage').text("Đã xảy ra lỗi. Vui lòng thử lại sau.").show();
+                    }
+                });
+            });
+            function closeModal() { document.getElementById("loginModal").style.display = "none"; }
+            const searchInput = document.getElementById("search-input");
+            const suggestionsList = document.getElementById("suggestions-list");
+            document.getElementById("search-input").addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    if (this.value.trim() === "") {
+                        event.preventDefault();
+                        $('#searchAlert').modal('show');
+                    }
+                }
+            });
+            searchInput.addEventListener("focus", showSuggestions);
+            searchInput.addEventListener("input", (e) => { fetchSuggestions(e.target.value); });
+            const allSongs = (Array.isArray(songs) ? songs : []).map(song => ({
+                song_id: song[0],
+                song_name: song[1] || '',
+                release_date: song[2] || '',
+                file_name: song[3] || '',
+                thumbnail_image: song[4] || '',
+                views_song: song[5] || 0,
+                like_count: song[6] || 0,
+                album_name: song[7] || '',
+                genre_name: song[8] || '',
+                artist_names: (song[9] || '').toString().split(', ').filter(a => a)
+            }));
+            function showSuggestions() { suggestionsList.style.display = "block"; }
+            function hideSuggestions() { setTimeout(() => { suggestionsList.style.display = "none"; }, 200);}
+            searchInput.addEventListener("blur", hideSuggestions);
+            function fetchSuggestions(query) {
+                const suggestionsList = document.getElementById("suggestions-list");
+                suggestionsList.innerHTML = "";
+                if (query.trim() === "") return;
+                const filteredSongs = allSongs.filter(song => {
+                    return (song.song_name && song.song_name.toLowerCase().includes(query.toLowerCase())) ||
+                        (song.artist_names && song.artist_names.some(artist => artist.toLowerCase().includes(query.toLowerCase())));
+                });
+                filteredSongs.forEach((song) => {
+                    const item = document.createElement("div");
+                    item.className = "suggestion-item";
+                    item.innerHTML = `<img src="../../Source/Musics-Image/${song.thumbnail_image}" alt="${song.song_name}" style="width: 50px; height: 50px; margin-right: 10px;">
+                        <div>
+                            <strong>${song.song_name}</strong><br>
+                            <span>${song.artist_names.join(", ")}</span>
+                        </div>
+                    `;
+                    item.onclick = () => selectSong(song);
+                    suggestionsList.appendChild(item);
+                });
+            }
+
+            function selectSong(song) { window.location.href = `../../PlayMusic/Index?id=${song.song_id}`; hideSuggestions(); }
+        });
+        let ws;
+        var username = 'Guest';
+        var room = '0';
+        var session = '@Session["userID"]';
+        var isLoggedIn = session !== '';
+        if (isLoggedIn) {
+            username = '@Html.Raw(Session["fullname"])';
+            ws = new WebSocket(`wss://server-mes-duong.glitch.me/ws?name=${username}&room=${room}`);
+            ws.onmessage = (event) => {
+                const chatMessages = document.getElementById('chatMessages');
+                const message = event.data;
+                try {
+                    const messageData = JSON.parse(message);
+                    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `chat-message ${messageData.sender === "System" ? 'system-message' : (messageData.sender === username ? 'me' : 'other')}`;
+                    if (messageData.sender === "System") { messageElement.innerHTML = `<span class="system-text">${messageData.message}</span><span class="timestamp">${timestamp}</span>`;
+                    } else { messageElement.innerHTML = `<strong>${messageData.sender}:</strong> ${messageData.message}`; }
+                    if (messageData.sender !== username && document.getElementById('chatContainer').style.display === 'none') { notificationDot.style.display = 'block'; }
+                    chatMessages.appendChild(messageElement);
+                } catch (error) { console.error('Error parsing message:', error); }
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+        }
+        const notificationDot = document.getElementById('notificationDot');
+        function toggleChat(event) {
+            if (!isLoggedIn) { alert("Bạn phải đăng nhập để nhắn tin!"); }
+            else {
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.style.display = chatContainer.style.display === 'none' ? 'block' : 'none';
+                if (chatContainer.style.display === 'block') { notificationDot.style.display = 'none'; }
+                event.stopPropagation();
+            }
+        }
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+            if (message && ws && ws.readyState === WebSocket.OPEN) {
+                const formattedMessage = JSON.stringify({ sender: username, message: message });
+                ws.send(formattedMessage);
+                messageInput.value = '';
+            }
+        }
+        document.getElementById('messageInput').addEventListener('keypress', (event) => { if (event.key === 'Enter') { sendMessage(); } });
+        document.getElementById('sendButton').addEventListener('click', () => { sendMessage(); });
+        document.addEventListener('click', (event) => {
+            const chatContainer = document.getElementById('chatContainer');
+            if (chatContainer.style.display === 'block' && !chatContainer.contains(event.target)) { chatContainer.style.display = 'none'; }
+        });
+
+        function toggleAuthMenu() {
+            const authMenu = document.getElementById('auth-menu');
+            authMenu.style.display = authMenu.style.display === 'none' || !authMenu.style.display ? 'block' : 'none';
+        }
+
+        function createNewPlaylist() {
+            const playlistName = document.getElementById("new-playlist-name").value;
+            if (!playlistName.trim()) {
+                alert("Tên playlist không được để trống!");
+                return;
+            }
+
+            fetch(`/Playlists/CreateNewPlaylist`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: playlistName })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Playlist đã được tạo!");
+                        showPlaylistPopup();
+                    } else {
+                        alert("Đã xảy ra lỗi!");
+                    }
+                });
+        }
+        function addSongToPlaylist(songId, playlistId) {
+            fetch(`/Playlists/AddSongToPlaylist`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ songId, playlistId })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Bài hát đã được thêm vào playlist!");
+                    } else {
+                        alert("Đã xảy ra lỗi!");
+                    }
+                });
+        }
+        function showPlaylistPopup(songId, songName) {
+            // Cập nhật tiêu đề bài hát
+            document.getElementById("song-title").textContent = `Thêm "${songName}" vào playlist`;
+
+            // Gửi yêu cầu lấy danh sách playlist
+            fetch(`/Playlists/GetUserPlaylists?songId=${songId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message); // Hiển thị thông báo yêu cầu đăng nhập
+                        return;
+                    }
+
+                    // Hiển thị danh sách playlist nếu đã đăng nhập
+                    const playlistContainer = document.getElementById("user-playlists");
+                    playlistContainer.innerHTML = ""; // Xóa danh sách cũ
+                    data.playlists.forEach(playlist => {
+                        const li = document.createElement("li");
+                        li.className = "list-group-item d-flex justify-content-between align-items-center";
+                        li.textContent = playlist.name;
+
+                        const addButton = document.createElement("button");
+                        addButton.className = "btn btn-sm btn-success";
+                        addButton.textContent = "Thêm";
+                        addButton.onclick = () => addSongToPlaylist(songId, playlist.id);
+
+                        li.appendChild(addButton);
+                        playlistContainer.appendChild(li);
+                    });
+
+                    // Hiển thị modal
+                    const modal = new bootstrap.Modal(document.getElementById("playlistModal"));
+                    modal.show();
+                });
+        }
+
+        // Upload functionality
+        document.getElementById('submitUploadBtn').addEventListener('click', function() {
+            if (!isLoggedIn) {
+                alert('Bạn phải đăng nhập để tải lên bài hát!');
+                return;
+            }
+
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadError = document.getElementById('uploadError');
+            uploadError.style.display = 'none';
+            uploadError.textContent = '';
+
+            // Validate form
+            if (!uploadForm.checkValidity()) {
+                alert('Vui lòng điền đầy đủ các trường bắt buộc!');
+                return;
+            }
+
+            const songFile = document.getElementById('songFile').files[0];
+            if (!songFile) {
+                uploadError.textContent = 'Vui lòng chọn file nhạc!';
+                uploadError.style.display = 'block';
+                return;
+            }
+
+            // Check file size (50MB max)
+            const maxSize = 50 * 1024 * 1024;
+            if (songFile.size > maxSize) {
+                uploadError.textContent = 'Kích thước file vượt quá 50MB!';
+                uploadError.style.display = 'block';
+                return;
+            }
+
+            // Check file type
+            if (!songFile.type.startsWith('audio/') && !songFile.name.endsWith('.mp3')) {
+                uploadError.textContent = 'Vui lòng chọn file MP3 hợp lệ!';
+                uploadError.style.display = 'block';
+                return;
+            }
+
+            const thumbnailFile = document.getElementById('thumbnailFile').files[0];
+            if (thumbnailFile && thumbnailFile.size > 5 * 1024 * 1024) {
+                uploadError.textContent = 'Ảnh bìa vượt quá 5MB!';
+                uploadError.style.display = 'block';
+                return;
+            }
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('songName', document.getElementById('songName').value);
+            formData.append('artistName', document.getElementById('artistName').value);
+            formData.append('genre', document.getElementById('genre').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('songFile', songFile);
+            if (thumbnailFile) {
+                formData.append('thumbnailFile', thumbnailFile);
+            }
+
+            // Show progress
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('submitUploadBtn').disabled = true;
+
+            // Upload file
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    document.getElementById('progressBar').style.width = percentComplete + '%';
+                    document.getElementById('progressText').textContent = `Đang tải lên: ${Math.round(percentComplete)}%`;
+                }
+            });
+
+            xhr.addEventListener('load', function() {
+                document.getElementById('submitUploadBtn').disabled = false;
+                document.getElementById('uploadProgress').style.display = 'none';
+                
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            alert('Tải lên bài hát thành công!');
+                            uploadForm.reset();
+                            document.getElementById('progressBar').style.width = '0%';
+                            $('#uploadModal').modal('hide');
+                        } else {
+                            uploadError.textContent = response.message || 'Tải lên thất bại!';
+                            uploadError.style.display = 'block';
+                        }
+                    } catch (e) {
+                        uploadError.textContent = 'Có lỗi xảy ra khi xử lý phản hồi!';
+                        uploadError.style.display = 'block';
+                    }
+                } else {
+                    uploadError.textContent = 'Tải lên thất bại! Mã lỗi: ' + xhr.status;
+                    uploadError.style.display = 'block';
+                }
+            });
+
+            xhr.addEventListener('error', function() {
+                document.getElementById('submitUploadBtn').disabled = false;
+                document.getElementById('uploadProgress').style.display = 'none';
+                uploadError.textContent = 'Lỗi kết nối! Vui lòng thử lại!';
+                uploadError.style.display = 'block';
+            });
+
+            xhr.open('POST', '/Upload/UploadSong');
+            xhr.send(formData);
+        });
+
+        // Clear upload form when modal closes
+        $('#uploadModal').on('hidden.bs.modal', function() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('uploadError').style.display = 'none';
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+        });
+    </script>
+</body>
+
+</html>

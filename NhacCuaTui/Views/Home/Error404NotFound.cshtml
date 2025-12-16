@@ -1,0 +1,24 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding:100px 0; place-items: center;">
+    <h1 style="color: red">404 NOT FOUND</h1>
+    <h3><i>Không thể tìm thấy trang bạn vừa tìm! <br /> Vui lòng quay lại trang chủ để tiếp tục.</i></h3>
+    <input id="quaylai" type="submit" value="Quay lại" onclick="window.location.href = '../../Home/Index'" />
+</div>
+
+<style>
+    #quaylai{
+        margin-top: 30px;
+        padding: 10px 15px;
+        border-color: forestgreen;
+        color: forestgreen;
+        background-color: white;
+        border-radius: 15px;
+    }
+        #quaylai:hover {
+            pointer-events: inherit;
+            color: white;
+            background-color: forestgreen;
+        }
+</style>

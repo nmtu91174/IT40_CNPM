@@ -1,0 +1,47 @@
+﻿<div class="card">
+    <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">THÊM CA SĨ</h5>
+        <form action="~/Admin/Artists/ThemCaSi" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="artistname" class="form-label">Tên ca sĩ</label>
+                <input type="text" class="form-control" aria-describedby="emailHelp" name="artistname" required>
+                <div id="emailHelp" class="form-text">Trường này sẽ là tên của ca sĩ.</div>
+            </div>
+            <div class="mb-3">
+                <label for="bio" class="form-label">Bio</label>
+                <textarea class="form-control" data-bs-toggle="autosize" aria-describedby="emailHelp" placeholder="" name="bio"></textarea>
+                <div id="emailHelp" class="form-text">Bio của ca sĩ.</div>
+            </div>
+            <div class="mb-3">
+                <label for="avatar_image" class="form-label">Hỉnh ảnh</label>
+                <input type="file" accept=".jpg, .jpeg, .png" class="form-control" aria-describedby="emailHelp" name="avatar_image">
+                <div id="emailHelp" class="form-text">Hình của ca sĩ .</div>
+            </div>
+            @if (Session["AddArtist_Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Session["AddArtist_Error"].ToString()
+                </div>
+            }
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_alert">Thêm</button>
+            <button type="button" class="btn btn-default" onclick="window.location.href = '../../Admin/Artists/Index'" style="margin-left: 20px;">Quay lại</button>
+            <div class="modal" id="add_alert" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Thêm ca sĩ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có muốn thêm ca sĩ này?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn me-auto" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Đồng ý</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

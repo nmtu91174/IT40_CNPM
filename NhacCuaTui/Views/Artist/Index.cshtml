@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var artists = ViewBag.Artists as System.Collections.ArrayList;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">🎤 Danh sách Ca sĩ</h2>
+
+    @if (artists == null || artists.Count == 0)
+    {
+        <div class="alert alert-info">Không có dữ liệu ca sĩ.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var a in artists)
+            {
+                var row = a as System.Collections.ArrayList;
+                if (row == null) { continue; }
+
+                var artistId = row.Count > 0 ? (row[0]?.ToString() ?? "") : "";
+                var artistName = row.Count > 1 ? (row[1]?.ToString() ?? "") : "";
+                var bio = row.Count > 2 ? (row[2]?.ToString() ?? "") : "";
+                var avatarImage = row.Count > 3 ? (row[3]?.ToString() ?? "") : "";
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 artist-card" style="box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+                        <div style="height: 250px; overflow: hidden; background-color: #f0f0f0;">
+                            @if (!string.IsNullOrEmpty(avatarImage))
+                            {
+                                <img src="~/Source/Artists-Image/@avatarImage" class="card-img-top" style="height: 100%; object-fit: cover;" alt="@artistName">
+                            }
+                            else
+                            {
+                                <div style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: #e9ecef;">
+                                    <i class="fas fa-user-circle" style="font-size: 80px; color: #999;"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: #6f42c1; font-weight: bold;">@artistName</h5>
+                            <p class="card-text text-muted" style="font-size: 0.9em; height: 60px; overflow: hidden;">
+                                @(string.IsNullOrEmpty(bio) ? "Không có thông tin" : bio)
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="@Url.Action("Detail", "Artist", new { id = artistId })" class="btn btn-outline-primary btn-sm w-100">
+                                Xem bài hát
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .artist-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+</style>

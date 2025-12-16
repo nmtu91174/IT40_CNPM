@@ -1,0 +1,339 @@
+﻿<div class="card">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">Người dùng</h2>
+            </div>
+            <div class="col-auto ms-auto d-print-none">
+                <div class="d-flex">
+                    <div class="me-3 d-none d-md-block">
+                        <div class="input-icon">
+                            <input type="text" id="userSearch" class="form-control" placeholder="Tìm kiếm người dùng…" />
+                        </div>
+                    </div>
+                    <div class="dropdown" style="margin-right: 10px">
+                        <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown">Vai trò</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" data-role="Nhân viên">Nhân viên</a>
+                            <a class="dropdown-item" href="#" data-role="Người dùng">Người dùng</a>
+                            <a class="dropdown-item active" href="#" data-role="Tất cả">Tất cả</a>
+                        </div>
+                    </div>
+                    <a href="~/Admin/Users/AddUser" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 5l0 14"></path>
+                            <path d="M5 12l14 0"></path>
+                        </svg>
+                        Thêm user
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive" data-simplebar>
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:30%">Tên người dùng</th>
+                        <th scope="col" style="width:20%">Email</th>
+                        <th scope="col" style="width:10%">Số điện thoại</th>
+                        <th scope="col" style="width:10%">Tạo</th>
+                        <th scope="col" style="width:10%">Cập nhật</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody id="userList">
+                    @foreach (var a in ViewBag.listUsers)
+                    {
+                        string createdDateString = a[7];
+                        string updatedDateString = a[8];
+                        DateTime createdDate, updatedDate;
+                        string formattedCreatedDate = "";
+                        string formattedUpdatedDate = "";
+
+                        try
+                        {
+                            createdDate = DateTime.Parse(createdDateString); // Chuyển đổi chuỗi thành DateTime
+                            formattedCreatedDate = createdDate.ToString("dd/MM/yyyy"); // Định dạng ngày tạo
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("The created date format is incorrect.");
+                        }
+
+                        try
+                        {
+                            updatedDate = DateTime.Parse(updatedDateString); // Chuyển đổi chuỗi thành DateTime
+                            formattedUpdatedDate = updatedDate.ToString("dd/MM/yyyy"); // Định dạng ngày cập nhật
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("The updated date format is incorrect.");
+                        }
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bolder">@a[3]</h6>
+                                        <p class="fs-3 mb-0">@a[4]</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@a[5]</p>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0 text-primary">
+                                    @a[6]
+                                </p>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@formattedCreatedDate</p>
+                            </td>
+                            <td>
+                                <p class="fs-3 fw-normal mb-0">@formattedUpdatedDate</p>
+                            </td>
+                            <td>
+                                @if (a[4] != "Admin")
+                                {
+                                    <a href="~/Admin/Users/EditUser?id=@a[0]">
+                                        <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert"><i class="ti ti-x fs-7 text-danger"></i></button> <!--------- Xóa modal ---------->
+                                    <div class="modal" id="deleteAlert" tabindex="-1">
+                                        <div class="modal-dialog modal-sm" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-status bg-danger"></div>
+                                                <div class="modal-body text-center py-5">
+                                                    <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="##fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                                    <h3>Xóa ?</h3>
+                                                    <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="w-100">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <a href="#" class="btn w-100" data-bs-dismiss="modal">Hủy</a>
+                                                            </div>
+                                                            <div class="col">
+                                                                <a href="~/Admin/Users/XoaNguoiDung?id=@a[0]" class="btn btn-danger w-100">Xóa</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--------- END Xóa modal ---------->
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                    @if (ViewBag.listUsers.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">Không tìm thấy người dùng nào</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Giả sử ViewBag.listUsers chứa các thông tin người dùng dưới dạng mảng JSON
+    var listUsers = @Html.Raw(Json.Encode(ViewBag.listUsers));
+
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN'); // Định dạng ngày tháng theo định dạng Việt Nam
+    }
+
+    function searchUser() {
+        var input = document.getElementById('userSearch').value.toLowerCase(); // Lấy giá trị từ input và chuyển thành chữ thường
+        var userList = document.getElementById('userList'); // Vị trí hiển thị danh sách người dùng (tbody của bảng)
+        userList.innerHTML = ''; // Xóa nội dung cũ của bảng
+
+        // Lọc người dùng theo tên hoặc email
+        var filteredUsers = listUsers.filter(function(user) {
+            return user[3].toLowerCase().includes(input) || user[5].toLowerCase().includes(input); // user[3] là tên, user[5] là email
+        });
+
+        // Cập nhật bảng với các người dùng đã lọc
+        filteredUsers.forEach(function(user) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bolder">${user[3]}</h6>
+                            <p class="fs-3 mb-0">${user[4]}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${user[5]}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0 text-primary">${user[6]}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${formatDate(user[7])}</p> <!-- Ngày tạo -->
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${formatDate(user[8])}</p> <!-- Ngày cập nhật -->
+                </td>
+                <td>
+                    ${user[4] != "Admin" ? `
+                        <a href="../../../Admin/Users/EditUser?id=${user[0]}">
+                            <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert"><i class="ti ti-x fs-7 text-danger"></i></button>
+                        <div class="modal" id="deleteAlert" tabindex="-1">
+                            <div class="modal-dialog modal-sm" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-status bg-danger"></div>
+                                    <div class="modal-body text-center py-5">
+                                        <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="##fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                        <h3>Xóa ?</h3>
+                                        <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="w-100">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <a href="#" class="btn w-100" data-bs-dismiss="modal">Hủy</a>
+                                                </div>
+                                                <div class="col">
+                                                    <a href="../../../Admin/Users/XoaNguoiDung?id=${user[0]}" class="btn btn-danger w-100">Xóa</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </td>
+            `;
+            userList.appendChild(tr); // Thêm hàng mới vào bảng
+        });
+
+        // Nếu không tìm thấy người dùng nào
+        if (filteredUsers.length === 0) {
+            userList.innerHTML = '<tr><td colspan="6" class="text-center">Không tìm thấy người dùng nào</td></tr>';
+        }
+    }
+
+    // Gọi hàm searchUser mỗi khi người dùng nhập liệu vào ô tìm kiếm
+    document.getElementById('userSearch').addEventListener('input', searchUser);
+
+    // Hàm lọc người dùng theo vai trò
+    function filterUsersByRole(role) {
+        var userList = document.getElementById('userList');
+        userList.innerHTML = ''; // Xóa nội dung cũ của danh sách người dùng
+
+        // Lọc người dùng theo vai trò
+        var filteredUsers = role === 'Tất cả' ? listUsers : listUsers.filter(function(user) {
+            return user[4] === role; // user[4] là vai trò
+        });
+
+        // Cập nhật bảng với các người dùng đã lọc
+        filteredUsers.forEach(function(user) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bolder">${user[3]}</h6>
+                            <p class="fs-3 mb-0">${user[4]}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${user[5]}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0 text-primary">${user[6]}</p>
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${formatDate(user[7])}</p> <!-- Ngày tạo -->
+                </td>
+                <td>
+                    <p class="fs-3 fw-normal mb-0">${formatDate(user[8])}</p> <!-- Ngày cập nhật -->
+                </td>
+                <td>
+                    ${user[4] != "Admin" ? `
+                        <a href="../../../Admin/Users/EditUser?id=${user[0]}">
+                            <button type="button" class="btn btn-outline-warning m-1"><i class="ti ti-edit fs-7 text-warning"></i></button>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger m-1" data-bs-toggle="modal" data-bs-target="#deleteAlert"><i class="ti ti-x fs-7 text-danger"></i></button>
+                        <div class="modal" id="deleteAlert" tabindex="-1">
+                            <div class="modal-dialog modal-sm" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-status bg-danger"></div>
+                                    <div class="modal-body text-center py-5">
+                                        <lottie-player src="https://lottie.host/d80a0956-d00c-42de-a2cf-fa74b9cad7bd/erqa1HIFBw.json" background="##fff" speed="1" style="width: 250px; height: 250px" loop autoplay></lottie-player>
+                                        <h3>Xóa ?</h3>
+                                        <div class="text-secondary">Thao tác này không thể hoàn lại!</div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="w-100">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <a href="#" class="btn w-100" data-bs-dismiss="modal">Hủy</a>
+                                                </div>
+                                                <div class="col">
+                                                    <a href="../../../Admin/Users/XoaNguoiDung?id=${user[0]}" class="btn btn-danger w-100">Xóa</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </td>
+            `;
+            userList.appendChild(tr); // Thêm hàng vào bảng
+        });
+
+        // Nếu không tìm thấy người dùng nào
+        if (filteredUsers.length === 0) {
+            userList.innerHTML = `<tr><td colspan="6" class="text-center"><div class="empty">
+  <div class="empty-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="100px" height="100px" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <circle cx="12" cy="12" r="9" />
+      <line x1="9" y1="10" x2="9.01" y2="10" />
+      <line x1="15" y1="10" x2="15.01" y2="10" />
+      <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
+    </svg>
+  </div>
+  <p class="empty-title">Không tìm thấy người dùng</p>
+  <p class="empty-subtitle text-secondary">
+    Thử tìm kiếm người dùng khác.
+  </p></td></tr>`;
+        }
+    }
+
+    // Xử lý sự kiện khi chọn một mục từ dropdown
+    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(function(item) {
+        item.addEventListener('click', function(event) {
+            event.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
+            var role = this.getAttribute('data-role'); // Lấy vai trò từ thuộc tính data-role
+            filterUsersByRole(role); // Gọi hàm lọc người dùng
+
+            // Xóa class active khỏi các mục khác và thêm class active vào mục hiện tại
+            document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(function(i) {
+                i.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+
+</script>
